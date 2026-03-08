@@ -19,8 +19,29 @@
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
           navigator.serviceWorker.register('./sw.js', { scope: './' })
-            .then(reg => console.log('SW Registered'))
+            .then(reg => {
+              console.log('SW Registered');
+              reg.onupdatefound = () => {
+                const installingWorker = reg.installing;
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed') {
+                    if (navigator.serviceWorker.controller) {
+                      console.log('New version available, reloading...');
+                    }
+                  }
+                };
+              };
+            })
             .catch(err => console.log('SW Registration failed', err));
+        });
+
+        // Add this to automatically reload the page when the new Service Worker takes control
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            window.location.reload();
+            refreshing = true;
+          }
         });
       }
     </script>
