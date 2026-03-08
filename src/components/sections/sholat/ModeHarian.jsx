@@ -15,7 +15,7 @@ export default function ModeHarian() {
                 <TabButton label="Dzikir Setelah" active={subTab === 'dzikir'} onClick={() => setSubTab('dzikir')} />
             </div>
             <div className="pt-2">
-                {subTab === 'wajib' && <SholatWajibView />}
+                {subTab === 'wajib' && <SholatWajibView onGoToDzikir={() => setSubTab('dzikir')} />}
                 {subTab === 'sunnah' && <SholatSunnahView />}
                 {subTab === 'dzikir' && <DzikirView />}
             </div>
