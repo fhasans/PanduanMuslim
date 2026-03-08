@@ -77,11 +77,61 @@ export const bacaanSholatLengkap = [
 ];
 
 export const dataSholatWajib = [
-    { id: 'subuh', nama: 'Subuh', waktu: 'Terbit fajar hingga terbit matahari', rakaat: 2, icon: <Sunrise size={20} className="text-blue-500" />, niat: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", artiNiat: "Aku berniat sholat fardhu Subuh dua rakaat menghadap kiblat karena Allah Ta'ala." },
-    { id: 'dzuhur', nama: 'Dzuhur', waktu: 'Matahari tergelincir ke barat hingga bayangan sama panjang', rakaat: 4, icon: <Sun size={20} className="text-amber-500" />, niat: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", artiNiat: "Aku berniat sholat fardhu Dzuhur empat rakaat menghadap kiblat karena Allah Ta'ala." },
-    { id: 'ashar', nama: 'Ashar', waktu: 'Bayangan lebih panjang dari benda hingga matahari terbenam', rakaat: 4, icon: <Clock size={20} className="text-orange-500" />, niat: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", artiNiat: "Aku berniat sholat fardhu Ashar empat rakaat menghadap kiblat karena Allah Ta'ala." },
-    { id: 'maghrib', nama: 'Maghrib', waktu: 'Matahari terbenam hingga hilangnya mega merah', rakaat: 3, icon: <Sunset size={20} className="text-red-500" />, niat: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", artiNiat: "Aku berniat sholat fardhu Maghrib tiga rakaat menghadap kiblat karena Allah Ta'ala." },
-    { id: 'isya', nama: 'Isya', waktu: 'Hilangnya mega merah hingga pertengahan malam', rakaat: 4, icon: <MoonStar size={20} className="text-indigo-500" />, niat: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", artiNiat: "Aku berniat sholat fardhu Isya empat rakaat menghadap kiblat karena Allah Ta'ala." }
+    { 
+        id: 'subuh', 
+        nama: 'Subuh', 
+        waktu: 'Terbit fajar hingga terbit matahari', 
+        rakaat: 2, 
+        icon: <Sunrise size={20} className="text-blue-500" />, 
+        niatSendiri: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+        niatImam: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
+        niatMakmum: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
+        artiNiat: "Aku berniat sholat fardhu Subuh dua rakaat menghadap kiblat karena Allah Ta'ala." 
+    },
+    { 
+        id: 'dzuhur', 
+        nama: 'Dzuhur', 
+        waktu: 'Matahari tergelincir ke barat hingga bayangan sama panjang', 
+        rakaat: 4, 
+        icon: <Sun size={20} className="text-amber-500" />, 
+        niatSendiri: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+        niatImam: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
+        niatMakmum: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
+        artiNiat: "Aku berniat sholat fardhu Dzuhur empat rakaat menghadap kiblat karena Allah Ta'ala." 
+    },
+    { 
+        id: 'ashar', 
+        nama: 'Ashar', 
+        waktu: 'Bayangan lebih panjang dari benda hingga matahari terbenam', 
+        rakaat: 4, 
+        icon: <Clock size={20} className="text-orange-500" />, 
+        niatSendiri: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+        niatImam: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
+        niatMakmum: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
+        artiNiat: "Aku berniat sholat fardhu Ashar empat rakaat menghadap kiblat karena Allah Ta'ala." 
+    },
+    { 
+        id: 'maghrib', 
+        nama: 'Maghrib', 
+        waktu: 'Matahari terbenam hingga hilangnya mega merah', 
+        rakaat: 3, 
+        icon: <Sunset size={20} className="text-red-500" />, 
+        niatSendiri: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+        niatImam: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
+        niatMakmum: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
+        artiNiat: "Aku berniat sholat fardhu Maghrib tiga rakaat menghadap kiblat karena Allah Ta'ala." 
+    },
+    { 
+        id: 'isya', 
+        nama: 'Isya', 
+        waktu: 'Hilangnya mega merah hingga pertengahan malam', 
+        rakaat: 4, 
+        icon: <MoonStar size={20} className="text-indigo-500" />, 
+        niatSendiri: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+        niatImam: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
+        niatMakmum: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
+        artiNiat: "Aku berniat sholat fardhu Isya empat rakaat menghadap kiblat karena Allah Ta'ala." 
+    }
 ];
 
 export const dataSholatSunnah = [
@@ -91,8 +141,9 @@ export const dataSholatSunnah = [
             {
                 nama: "Sholat Dhuha (2 - 8 Rakaat)",
                 keutamaan: "Sebagai sedekah bagi seluruh persendian tubuh dan membawa kecukupan rezeki.",
-                niat: "Ushallii sunnatadh dhuhaa rak'ataini lillaahi ta'aalaa.",
+                niatSendiri: "Ushallii sunnatadh dhuhaa rak'ataini lillaahi ta'aalaa.",
                 arti: "Aku berniat sholat sunnah Dhuha dua rakaat karena Allah Ta'ala.",
+                steps: true,
                 doaSetelah: {
                     latin: "Allaahumma innadh dhuhaa-a dhuhaa-uka, wal bahaa-a bahaa-uka, wal jamaala jamaaluka, wal quwwata quwwatuka, wal qudrata qudratuka, wal ishmata ishmatuka. Allaahumma in kaana rizqii fis samaa-i fa-anzilhu, wa in kaana fil ardhi fa-akhrijhu, wa in kaana mu'assiran fayassirhu, wa in kaana haraaman fathahhirhu, wa in kaana ba'iidan faqarribhu, bihaqqi dhuhaa-ika wa bahaa-ika wa jamaalika wa quwwatika wa qudratika, aatinii maa aataita 'ibaadakash shaalihiin.",
                     arti: "Ya Allah, sesungguhnya waktu Dhuha adalah waktu Dhuha-Mu, keagungan adalah keagungan-Mu, keindahan adalah keindahan-Mu, kekuatan adalah kekuatan-Mu, penjagaan adalah penjagaan-Mu. Ya Allah, apabila rezekiku berada di atas langit maka turunkanlah, apabila berada di dalam bumi maka keluarkanlah, apabila sukar mudahkanlah, apabila haram sucikanlah, apabila jauh dekatkanlah dengan kebenaran dhuha-Mu, keagungan-Mu, keindahan-Mu dan kekuatan-Mu, berikanlah kepadaku apa yang Engkau berikan kepada hamba-hamba-Mu yang shalih."
@@ -103,19 +154,19 @@ export const dataSholatSunnah = [
     {
         kategori: "Qobliyah (Sebelum Sholat Wajib)",
         daftar: [
-            { nama: "2 Rakaat Sebelum Subuh (Mu'akkad)", keutamaan: "Lebih baik dari dunia dan seisinya.", niat: "Ushallii sunnatash shubhi rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Subuh dua rakaat karena Allah Ta'ala." },
-            { nama: "2 atau 4 Rakaat Sebelum Dzuhur (Mu'akkad)", niat: "Ushallii sunnatadh dhuhri rak'ataini (arba'a raka'aatin) qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Dzuhur dua (empat) rakaat karena Allah Ta'ala." },
-            { nama: "2 atau 4 Rakaat Sebelum Ashar (Ghairu Mu'akkad)", keutamaan: "Allah merahmati orang yang sholat 4 rakaat sebelum Ashar.", niat: "Ushallii sunnatal 'ashri rak'ataini (arba'a raka'aatin) qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Ashar dua (empat) rakaat karena Allah Ta'ala." },
-            { nama: "2 Rakaat Sebelum Maghrib (Ghairu Mu'akkad)", niat: "Ushallii sunnatal maghribi rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Maghrib dua rakaat karena Allah Ta'ala." },
-            { nama: "2 Rakaat Sebelum Isya (Ghairu Mu'akkad)", niat: "Ushallii sunnatal 'isyaa-i rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Isya dua rakaat karena Allah Ta'ala." }
+            { nama: "2 Rakaat Sebelum Subuh (Mu'akkad)", steps: true, keutamaan: "Lebih baik dari dunia dan seisinya.", niatSendiri: "Ushallii sunnatash shubhi rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Subuh dua rakaat karena Allah Ta'ala." },
+            { nama: "2 atau 4 Rakaat Sebelum Dzuhur (Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatadh dhuhri rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Dzuhur dua rakaat karena Allah Ta'ala." },
+            { nama: "2 atau 4 Rakaat Sebelum Ashar (Ghairu Mu'akkad)", steps: true, keutamaan: "Allah merahmati orang yang sholat 4 rakaat sebelum Ashar.", niatSendiri: "Ushallii sunnatal 'ashri rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Ashar dua rakaat karena Allah Ta'ala." },
+            { nama: "2 Rakaat Sebelum Maghrib (Ghairu Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatal maghribi rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Maghrib dua rakaat karena Allah Ta'ala." },
+            { nama: "2 Rakaat Sebelum Isya (Ghairu Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatal 'isyaa-i rak'ataini qabliyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sebelum Isya dua rakaat karena Allah Ta'ala." }
         ]
     },
     {
         kategori: "Ba'diyah (Sesudah Sholat Wajib)",
         daftar: [
-            { nama: "2 Rakaat Sesudah Dzuhur (Mu'akkad)", niat: "Ushallii sunnatadh dhuhri rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Dzuhur dua rakaat karena Allah Ta'ala." },
-            { nama: "2 Rakaat Sesudah Maghrib (Mu'akkad)", niat: "Ushallii sunnatal maghribi rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Maghrib dua rakaat karena Allah Ta'ala." },
-            { nama: "2 Rakaat Sesudah Isya (Mu'akkad)", niat: "Ushallii sunnatal 'isyaa-i rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Isya dua rakaat karena Allah Ta'ala." },
+            { nama: "2 Rakaat Sesudah Dzuhur (Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatadh dhuhri rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Dzuhur dua rakaat karena Allah Ta'ala." },
+            { nama: "2 Rakaat Sesudah Maghrib (Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatal maghribi rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Maghrib dua rakaat karena Allah Ta'ala." },
+            { nama: "2 Rakaat Sesudah Isya (Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatal 'isyaa-i rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Isya dua rakaat karena Allah Ta'ala." },
             { nama: "PENTING: Tidak Ada Ba'diyah Subuh & Ashar", larangan: true, arti: "Sesuai ajaran Nabi ﷺ, TIDAK ADA sholat sunnah Ba'diyah (sesudah) sholat fardhu Subuh (hingga matahari terbit) dan sesudah sholat fardhu Ashar (hingga matahari terbenam). Keduanya adalah waktu yang terlarang untuk sholat sunnah mutlak/ba'diyah." }
         ]
     },
@@ -125,8 +176,9 @@ export const dataSholatSunnah = [
             {
                 nama: "Sholat Taubat (2 Rakaat)",
                 keutamaan: "Sebagai sarana memohon ampunan Allah atas segala dosa yang telah diperbuat, baik kecil maupun besar.",
-                niat: "Ushallii sunnatat taubati rak'ataini lillaahi ta'aalaa.",
+                niatSendiri: "Ushallii sunnatat taubati rak'ataini lillaahi ta'aalaa.",
                 arti: "Aku berniat sholat sunnah taubat dua rakaat karena Allah Ta'ala.",
+                steps: "taubat",
                 doaSetelah: {
                     latin: "Allaahumma anta rabbii laa ilaaha illaa anta, khalaqtanii wa anaa 'abduka wa anaa 'alaa 'ahdika wa wa'dika mastatha'tu. A'uudzu bika min syarri maa shana'tu, abuu-u laka bi ni'matika 'alayya wa abuu-u bi dzanbii faghfir lii fa innahu laa yaghfirudz dzunuuba illaa anta.",
                     arti: "Ya Allah, Engkau adalah Tuhanku, tidak ada Tuhan yang berhak disembah kecuali Engkau. Engkaulah yang menciptakan aku dan aku adalah hamba-Mu. Aku menetapi perjanjian-Mu dan janji-Mu sesuai kemampuanku. Aku berlindung kepada-Mu dari keburukan apa yang telah aku perbuat. Aku mengakui nikmat-Mu kepadaku dan aku mengakui dosaku kepada-Mu, maka ampunilah aku. Sesungguhnya tidak ada yang dapat mengampuni dosa kecuali Engkau."

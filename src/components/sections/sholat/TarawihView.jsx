@@ -1,26 +1,58 @@
-import React from 'react';
-import AccordionCard from '../../ui/AccordionCard.jsx';
-import TasbihCounter from '../../ui/TasbihCounter.jsx';
+import NiatBox from '../../ui/NiatBox.jsx';
+import { ListChecks } from 'lucide-react';
 
 export default function TarawihView() {
+    const tarawihSteps = [
+        "Takbiratul Ihram & Niat",
+        "Membaca Al-Fatihah (Wajib)",
+        "Membaca Surat Pendek (Sunnah)",
+        "Ruku' dengan Tuma'ninah",
+        "I'tidal dengan Tuma'ninah",
+        "Sujud dengan Tuma'ninah",
+        "Duduk di Antara Dua Sujud",
+        "Sujud Kedua",
+        "Bangun untuk Rakaat Kedua (Ulangi Langkah 2-8)",
+        "Tasyahud Akhir & Salam",
+        "Istirahat / Membaca Dzikir Sela (Lihat di bawah)"
+    ];
+
     return (
         <div className="space-y-6 animate-in fade-in">
-            <div className="bg-amber-50 p-5 rounded-2xl border border-amber-200">
+            <div className="bg-amber-50 p-5 rounded-3xl border border-amber-200">
                 <h3 className="font-bold text-amber-800 mb-2">Panduan Sholat Tarawih</h3>
                 <p className="text-sm text-amber-900 leading-relaxed mb-4">
-                    Sholat Tarawih sunnah dikerjakan setelah sholat Isya di bulan Ramadhan. Nabi ﷺ mengerjakannya 11 rakaat (8 Tarawih + 3 Witir), namun boleh juga dikerjakan 23 rakaat. Dilakukan dengan cara <strong>2 rakaat salam, 2 rakaat salam</strong>.
+                    Sholat Tarawih dilakukan dengan cara <strong>2 rakaat salam, 2 rakaat salam</strong>. Umumnya dilakukan 8 rakaat atau 20 rakaat, lalu ditutup dengan Witir.
                 </p>
 
                 <AccordionCard title="Niat Sholat Tarawih (2 Rakaat)" defaultOpen={true}>
-                    <div className="flex justify-between items-start gap-2 bg-white p-3 rounded-lg">
-                        <p className="font-semibold text-emerald-700 mb-1">
-                            "Ushallii sunnatat taraawiihi rak'ataini (imaman / makmuuman / lillaahi ta'aalaa)."
-                        </p>
+                    <div className="bg-emerald-50/30 p-1 rounded-2xl">
+                        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter px-3 mb-1 block">Pilih Peran:</span>
+                        <NiatBox 
+                            sendiri="Ushallii sunnatat taraawiihi rak'ataini lillaahi ta'aalaa."
+                            imam="Ushallii sunnatat taraawiihi rak'ataini imaaman lillaahi ta'aalaa."
+                            makmum="Ushallii sunnatat taraawiihi rak'ataini makmuuman lillaahi ta'aalaa."
+                            artiSendiri="Aku berniat sholat sunnah Tarawih dua rakaat karena Allah Ta'ala."
+                            artiImam="Aku berniat sholat sunnah Tarawih dua rakaat sebagai Imam karena Allah Ta'ala."
+                            artiMakmum="Aku berniat sholat sunnah Tarawih dua rakaat sebagai Makmum karena Allah Ta'ala."
+                        />
                     </div>
-                    <p className="text-xs text-slate-500 italic mt-2">
-                        Pilih "imaman" jika jadi imam, "makmuuman" jika jadi makmum, atau langsung "lillaahi ta'aalaa" jika sholat sendiri.
-                    </p>
                 </AccordionCard>
+
+                <div className="mt-4">
+                    <AccordionCard title="Tata Cara Per 2 Rakaat">
+                        <div className="bg-white border border-amber-100 rounded-2xl overflow-hidden divide-y divide-slate-50">
+                            {tarawihSteps.map((step, i) => (
+                                <div key={i} className="px-4 py-3 flex items-center gap-3 hover:bg-amber-50/50 transition-colors">
+                                    <span className="w-6 h-6 flex items-center justify-center bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold shrink-0">
+                                        {i + 1}
+                                    </span>
+                                    <span className="text-xs font-semibold text-slate-700">{step}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </AccordionCard>
+                </div>
+
 
                 <div className="mt-4 space-y-4">
                     <h3 className="font-bold text-slate-800 px-1">Bacaan Setiap Selesai 2 Rakaat</h3>

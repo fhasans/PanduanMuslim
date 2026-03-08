@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AccordionCard from '../../ui/AccordionCard.jsx';
+import NiatBox from '../../ui/NiatBox.jsx';
 import { bacaanSholatLengkap, dataSholatWajib } from '../../../data/sholatData.jsx';
 
 export default function SholatWajibView({ onGoToDzikir }) {
@@ -38,14 +39,17 @@ export default function SholatWajibView({ onGoToDzikir }) {
                 </div>
 
                 <div className="bg-emerald-50 rounded-2xl p-5 border border-emerald-100 mb-6">
-                    <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider mb-3 block">Niat (Lafadz)</span>
-                    <div className="bg-white/60 p-3 rounded-lg border-l-4 border-emerald-500 mb-2 flex justify-between items-start gap-2">
-                        <p className="font-semibold text-emerald-900 text-lg leading-relaxed">
-                            "{selectedWaktu.niat}"
-                        </p>
-                    </div>
-                    <p className="text-slate-600 text-sm italic">Artinya: "{selectedWaktu.artiNiat}"</p>
+                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter mb-2 block">Pilih Peran Sholat:</span>
+                    <NiatBox 
+                        sendiri={selectedWaktu.niatSendiri}
+                        imam={selectedWaktu.niatImam}
+                        makmum={selectedWaktu.niatMakmum}
+                        artiSendiri={selectedWaktu.artiNiat}
+                        artiImam={selectedWaktu.artiNiat}
+                        artiMakmum={selectedWaktu.artiNiat}
+                    />
                 </div>
+                
                 <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border border-blue-200 mb-6">
                     <span className="font-bold">Catatan Penting 1:</span> Untukmu yang sedang belajar, tidak apa-apa membaca panduan sambil memegang handphone, sholatmu tetap sah. Tenang saja, Allah tidak menuntut kesempurnaan pada hamba-Nya. Dia menghargai setiap usahamu yang terbata-bata. Teruslah melangkah, sesungguhnya Allah cinta pada hamba-Nya yang kembali merayu-Nya. Dan ampunan Allah jauh lebih luas dan besar daripada dosa dosa hamba-Nya, Maka mintalah maka kamu akan diampuni. Jadi jika kamu berniat untuk kembali, kembali lah dengan sungguh sungguh.
                 </div>
