@@ -118,5 +118,23 @@ export const dataSholatSunnah = [
             { nama: "2 Rakaat Sesudah Isya (Mu'akkad)", niat: "Ushallii sunnatal 'isyaa-i rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Isya dua rakaat karena Allah Ta'ala." },
             { nama: "PENTING: Tidak Ada Ba'diyah Subuh & Ashar", larangan: true, arti: "Sesuai ajaran Nabi ﷺ, TIDAK ADA sholat sunnah Ba'diyah (sesudah) sholat fardhu Subuh (hingga matahari terbit) dan sesudah sholat fardhu Ashar (hingga matahari terbenam). Keduanya adalah waktu yang terlarang untuk sholat sunnah mutlak/ba'diyah." }
         ]
+    },
+    {
+        kategori: "Sholat Sunnah Lainnya",
+        daftar: [
+            {
+                nama: "Sholat Taubat (2 Rakaat)",
+                keutamaan: "Sebagai sarana memohon ampunan Allah atas segala dosa yang telah diperbuat, baik kecil maupun besar.",
+                niat: "Ushallii sunnatat taubati rak'ataini lillaahi ta'aalaa.",
+                arti: "Aku berniat sholat sunnah taubat dua rakaat karena Allah Ta'ala.",
+                doaSetelah: {
+                    latin: "Allaahumma anta rabbii laa ilaaha illaa anta, khalaqtanii wa anaa 'abduka wa anaa 'alaa 'ahdika wa wa'dika mastatha'tu. A'uudzu bika min syarri maa shana'tu, abuu-u laka bi ni'matika 'alayya wa abuu-u bi dzanbii faghfir lii fa innahu laa yaghfirudz dzunuuba illaa anta.",
+                    arti: "Ya Allah, Engkau adalah Tuhanku, tidak ada Tuhan yang berhak disembah kecuali Engkau. Engkaulah yang menciptakan aku dan aku adalah hamba-Mu. Aku menetapi perjanjian-Mu dan janji-Mu sesuai kemampuanku. Aku berlindung kepada-Mu dari keburukan apa yang telah aku perbuat. Aku mengakui nikmat-Mu kepadaku dan aku mengakui dosaku kepada-Mu, maka ampunilah aku. Sesungguhnya tidak ada yang dapat mengampuni dosa kecuali Engkau."
+                },
+                dzikirKhusus: [
+                    { latin: "Astaghfirullaahal 'adzhiim, alladzii laa ilaaha illaa huwal hayyul qayyuumu wa atuubu ilaih.", target: 100, label: "Istighfar Taubat" }
+                ]
+            }
+        ]
     }
 ];
