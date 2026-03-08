@@ -77,24 +77,66 @@ export default function SholatSunnahView() {
                                             <div className="mt-4">
                                                 <h5 className="font-bold text-slate-800 mb-3 flex items-center gap-2 text-sm">
                                                     <ListChecks size={16} className="text-emerald-500" /> 
-                                                    Tata Cara Sholat {item.steps === 'taubat' ? 'Taubat' : 'Sunnah'}
+                                                    Panduan Tata Cara Sholat {item.steps === 'taubat' ? 'Taubat' : 'Sunnah'}
                                                 </h5>
                                                 
                                                 {item.steps === 'taubat' ? (
-                                                    <div className="space-y-2">
-                                                        {getTaubatSteps().map((s, i) => (
-                                                            <div key={i} className="bg-white border border-slate-100 p-3 rounded-xl shadow-sm">
-                                                                <span className="text-[10px] font-bold text-emerald-600 block mb-0.5">Langkah {i+1}:</span>
-                                                                <p className="font-bold text-slate-800 mb-1 text-sm">{s.title}</p>
-                                                                <p className="text-xs text-slate-500 leading-relaxed">{s.desc}</p>
+                                                    <div className="space-y-4">
+                                                        <div className="bg-emerald-50 border-emerald-100 border p-4 rounded-2xl">
+                                                            <p className="text-xs text-emerald-800 font-medium leading-relaxed">
+                                                                Sholat Taubat dikerjakan sebanyak <strong>2 rakaat</strong> (sendiri) dengan tata cara yang sama seperti sholat sunnah biasa, namun dengan niat bertaubat. Berikut rincian bacaan per gerakan:
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            {/* Filter and map the full prayer readings for a 2-rakaat sunnah flow */}
+                                                            {bacaanSholatLengkap
+                                                                .filter(b => !["Tasyahud Awal (Duduk Rakaat Kedua)"].includes(b.gerakan))
+                                                                .map((b, bIdx) => {
+                                                                    // Define which steps are rakaat 1 vs rakaat 2 for clarity
+                                                                    let badge = null;
+                                                                    if (["Takbiratul Ihram", "Doa Iftitah (Shafi'i)"].includes(b.gerakan)) badge = "Persiapan";
+                                                                    if (["Membaca Al-Fatihah (Wajib)", "Ruku'", "I'dtidal (Bangkit dari Ruku')", "Sujud"].includes(b.gerakan)) badge = "Rakaat 1 & 2";
+                                                                    if (["Tasyahud Akhir (Duduk Terakhir)", "Salam"].includes(b.gerakan)) badge = "Penutup";
+
+                                                                    return (
+                                                                        <div key={bIdx} className="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm transition-all hover:border-emerald-200">
+                                                                            <div className="bg-slate-50/50 px-4 py-2 border-b border-slate-50 flex justify-between items-center">
+                                                                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Gerakan {bIdx + 1}</span>
+                                                                                {badge && <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{badge}</span>}
+                                                                            </div>
+                                                                            <div className="p-4">
+                                                                                <h6 className="font-bold text-slate-800 text-sm mb-2">{b.gerakan}</h6>
+                                                                                <div className="bg-emerald-50/30 p-3 rounded-xl border border-emerald-50/50 mb-2">
+                                                                                    <p className="font-bold text-emerald-900 text-base leading-relaxed">"{b.latin}"</p>
+                                                                                </div>
+                                                                                <p className="text-[11px] text-slate-500 italic">Artinya: "{b.arti}"</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                })}
+                                                            
+                                                            <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl mt-4">
+                                                                <h6 className="font-bold text-amber-800 text-sm mb-2 flex items-center gap-2">
+                                                                    <Quote size={14} /> Langkah Setelah Salam:
+                                                                </h6>
+                                                                <ul className="text-xs text-amber-900 space-y-2 list-decimal list-inside font-medium leading-relaxed">
+                                                                    <li>Duduk tenang dan mulai membaca Istighfar (list di bawah).</li>
+                                                                    <li>Resapi setiap kata, akui kesalahan di hadapan Allah.</li>
+                                                                    <li>Baca doa Sayyidul Istighfar dengan penuh harap.</li>
+                                                                    <li>Berjanji (azam) dalam hati untuk tidak mengulangi perbuatan tersebut.</li>
+                                                                </ul>
                                                             </div>
-                                                        ))}
+                                                        </div>
                                                     </div>
                                                 ) : (
-                                                    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden divide-y divide-slate-50">
+                                                    <div className="bg-white border border-slate-100 rounded-2xl overflow-hidden divide-y divide-slate-50 shadow-sm">
+                                                        <div className="p-3 bg-slate-50/50">
+                                                            <p className="text-[11px] text-slate-500 italic">Ikuti urutan gerakan standar berikut untuk 2 rakaat sholat sunnah:</p>
+                                                        </div>
                                                         {commonSunnahSteps.map((step, i) => (
-                                                            <div key={i} className="px-4 py-2.5 flex items-center gap-3 hover:bg-slate-50 transition-colors">
-                                                                <span className="w-5 h-5 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold shrink-0">
+                                                            <div key={i} className="px-4 py-3 flex items-center gap-3 hover:bg-emerald-50/30 transition-colors group">
+                                                                <span className="w-6 h-6 flex items-center justify-center bg-slate-100 text-slate-500 rounded-full text-[10px] font-bold shrink-0 transition-transform group-hover:scale-110">
                                                                     {i + 1}
                                                                 </span>
                                                                 <span className="text-xs font-semibold text-slate-700">{step}</span>
