@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sunnahguide-v2'; // Increment version to clear old caches
+const CACHE_NAME = 'sunnahguide-v3'; // Increment version to clear old caches
 const ASSETS = [
   './',
   'index.html',
@@ -32,16 +32,24 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Allow all fetches to go to network first if not in cache, 
-  // and bypass cache for JS/CSS assets to avoid hash mismatch
   const url = new URL(event.request.url);
-  if (url.pathname.includes('/assets/')) {
-    return event.respondWith(fetch(event.request));
+  
+  // Strategy for index.html (Network First)
+  // This ensures users get the latest version pointing to the correct assets
+  if (event.request.mode === 'navigate' || url.pathname.endsWith('/') || url.pathname.endsWith('index.html')) {
+    event.respondWith(
+      fetch(event.request, {cache: 'no-cache'}).catch(() => {
+        return caches.match(event.request);
+      })
+    );
+    return;
   }
 
+  // Strategy for all other requests (Network First for asset safety)
+  // We want to avoid serving stale assets that might point to nonexistent hashes
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+    fetch(event.request).catch(() => {
+      return caches.match(event.request);
     })
   );
 });
