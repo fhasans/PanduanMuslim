@@ -8,7 +8,8 @@ import {
     Book,
     Compass,
     Bookmark,
-    Sun
+    Sun,
+    Download
 } from 'lucide-react';
 import { DesktopNavButton, MobileNavButton } from './components/layout/NavButtons.jsx';
 import BerandaSection from './components/sections/BerandaSection.jsx';
@@ -24,6 +25,7 @@ import RandomAyat from './components/layout/RandomAyat.jsx';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('beranda');
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('theme');
@@ -34,6 +36,15 @@ export default function App() {
     });
 
     useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            // Prevent Chrome 67 and earlier from automatically showing the prompt
+            e.preventDefault();
+            // Stash the event so it can be triggered later.
+            setDeferredPrompt(e);
+        };
+
+        window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
         if (isDarkMode) {
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');
@@ -41,7 +52,22 @@ export default function App() {
             document.documentElement.classList.remove('dark');
             localStorage.setItem('theme', 'light');
         }
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+        };
     }, [isDarkMode]);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        // Show the install prompt
+        deferredPrompt.prompt();
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response to the install prompt: ${outcome}`);
+        // We've used the prompt, and can't use it again, throw it away
+        setDeferredPrompt(null);
+    };
 
     const renderContent = () => {
         switch (activeTab) {
@@ -77,6 +103,14 @@ export default function App() {
                             >
                                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                             </button>
+                            {deferredPrompt && (
+                                <button 
+                                    onClick={handleInstallClick}
+                                    className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all shadow-sm shadow-emerald-200"
+                                >
+                                    <Download size={14} /> Install App
+                                </button>
+                            )}
                         </div>
                         <div className="flex space-x-1 shrink-0 overflow-x-auto no-scrollbar">
                             <DesktopNavButton icon={<Home size={18} />} label="Beranda" active={activeTab === 'beranda'} onClick={() => setActiveTab('beranda')} />
@@ -116,6 +150,16 @@ export default function App() {
                     <MobileNavButton icon={<Bookmark size={20} />} label="Doa" active={activeTab === 'doa'} onClick={() => setActiveTab('doa')} />
                 </div>
             </nav>
+
+            {/* Mobile Floating Install Button */}
+            {deferredPrompt && (
+                <button
+                    onClick={handleInstallClick}
+                    className="md:hidden fixed bottom-20 left-4 z-50 flex items-center gap-2 bg-emerald-600 text-white font-bold py-3 px-5 rounded-full shadow-lg active:scale-95 transition-transform animate-bounce"
+                >
+                    <Download size={20} /> Install App
+                </button>
+            )}
 
             {/* Mobile Floating Theme Toggle */}
             <button

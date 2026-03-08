@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Star, Check, Plus } from 'lucide-react';
 import AccordionCard from '../../ui/AccordionCard.jsx';
+import TasbihCounter from '../../ui/TasbihCounter.jsx';
 import { dzikirUmum, dzikirKhusus } from '../../../data/dzikirData.js';
 
 export default function DzikirView() {
@@ -61,10 +62,26 @@ export default function DzikirView() {
             <div className="space-y-4">
                 {dzikirUmum.map((dzikir, idx) => (
                     <AccordionCard key={idx} title={dzikir.judul} icon={idx + 1} defaultOpen={idx === 0}>
-                        <div className="mb-3 p-3 rounded-lg flex justify-between items-start gap-2 bg-emerald-50">
-                            <p className="font-medium text-lg leading-relaxed text-emerald-900">{dzikir.latin}</p>
-                                                    </div>
-                        <p className="text-sm text-slate-600 italic border-l-2 border-slate-300 pl-3">Artinya: "{dzikir.arti}"</p>
+                        {dzikir.isSequence ? (
+                            <div className="space-y-6">
+                                {dzikir.items.map((item, id) => (
+                                    <div key={id} className="border-b border-slate-100 last:border-none pb-4 last:pb-0">
+                                        <p className="font-bold text-sm text-emerald-700 mb-1">{item.judul}</p>
+                                        <p className="font-medium text-lg leading-relaxed text-emerald-900 mb-2">{item.latin}</p>
+                                        <p className="text-xs text-slate-500 italic mb-4">Artinya: "{item.arti}"</p>
+                                        <TasbihCounter target={item.target} label={`Hitung ${item.judul}`} />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <>
+                                <div className="mb-3 p-3 rounded-lg flex justify-between items-start gap-2 bg-emerald-50">
+                                    <p className="font-medium text-lg leading-relaxed text-emerald-900">{dzikir.latin}</p>
+                                </div>
+                                <p className="text-sm text-slate-600 italic border-l-2 border-slate-300 pl-3">Artinya: "{dzikir.arti}"</p>
+                                {dzikir.target && <TasbihCounter target={dzikir.target} />}
+                            </>
+                        )}
                     </AccordionCard>
                 ))}
 
@@ -77,8 +94,9 @@ export default function DzikirView() {
                             <AccordionCard key={'khusus' + idx} title={dzikir.judul} icon="+" defaultOpen={true}>
                                 <div className="mb-3 p-3 rounded-lg flex justify-between items-start gap-2 bg-amber-50 border border-amber-100">
                                     <p className="font-medium text-lg leading-relaxed text-amber-900">{dzikir.latin}</p>
-                                                                    </div>
+                                </div>
                                 <p className="text-sm text-slate-600 italic border-l-2 border-amber-300 pl-3">Artinya: "{dzikir.arti}"</p>
+                                {dzikir.target && <TasbihCounter target={dzikir.target} />}
                             </AccordionCard>
                         ))}
                     </div>
