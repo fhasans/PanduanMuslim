@@ -4,9 +4,11 @@ import { RotateCcw, Plus } from 'lucide-react';
 export default function TasbihCounter({ target = 33, label = "" }) {
     const [count, setCount] = useState(0);
 
+    const isInfinite = target === null;
+
     const handleIncrement = (e) => {
         e.stopPropagation();
-        if (count < target) {
+        if (isInfinite || count < target) {
             setCount(prev => prev + 1);
             // Haptic feedback if available
             if (window.navigator.vibrate) {
@@ -18,9 +20,12 @@ export default function TasbihCounter({ target = 33, label = "" }) {
     const handleReset = (e) => {
         e.stopPropagation();
         setCount(0);
+        if (window.navigator.vibrate) {
+            window.navigator.vibrate(80);
+        }
     };
 
-    const isFinished = count >= target;
+    const isFinished = !isInfinite && count >= target;
 
     return (
         <div className="flex items-center gap-3 mt-4 pt-4 border-t border-slate-100/50">
@@ -35,17 +40,17 @@ export default function TasbihCounter({ target = 33, label = "" }) {
             >
                 <div className="flex flex-col items-start translate-y-0.5">
                     <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">
-                        {label || "Ketuk untuk Menghitung"}
+                        {label || (isInfinite ? "Ketuk Hitung Sebanyaknya" : "Ketuk untuk Menghitung")}
                     </span>
                     <span className="text-sm font-extrabold">
-                        {isFinished ? "Selesai" : `Bacaan ke-${count + 1}`}
+                        {isFinished ? "Selesai" : isInfinite ? "Banyaknya bacaan" : `Bacaan ke-${count + 1}`}
                     </span>
                 </div>
                 
                 <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-xl backdrop-blur-sm">
-                    <Plus size={16} strokeWidth={3} className={isFinished ? "hidden" : "block"} />
+                    {!isFinished && <Plus size={16} strokeWidth={3} />}
                     <span className="text-xl font-black">{count}</span>
-                    <span className="text-xs font-bold opacity-60">/ {target}</span>
+                    {!isInfinite && <span className="text-xs font-bold opacity-60">/ {target}</span>}
                 </div>
             </button>
 
