@@ -29,7 +29,7 @@ export default function SholatWajibView({ onGoToDzikir }) {
                             <p className="text-slate-500 text-sm">{selectedWaktu.waktu}</p>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={onGoToDzikir}
                         className="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-2 rounded-lg transition-colors border border-emerald-100 mt-1"
                     >
@@ -43,12 +43,14 @@ export default function SholatWajibView({ onGoToDzikir }) {
                         <p className="font-semibold text-emerald-900 text-lg leading-relaxed">
                             "{selectedWaktu.niat}"
                         </p>
-                                            </div>
+                    </div>
                     <p className="text-slate-600 text-sm italic">Artinya: "{selectedWaktu.artiNiat}"</p>
                 </div>
-
                 <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border border-blue-200 mb-6">
-                    <span className="font-bold">Catatan Penting:</span> Semua bacaan di bawah ini adalah tuntunan sahih. Tuma'ninah (tenang sejenak di setiap gerakan) adalah rukun sholat.
+                    <span className="font-bold">Catatan Penting 1:</span> Untukmu yang sedang belajar, tidak apa-apa membaca panduan sambil memegang handphone, sholatmu tetap sah. Tenang saja, Allah tidak menuntut kesempurnaan pada hamba-Nya. Dia menghargai setiap usahamu yang terbata-bata. Teruslah melangkah, sesungguhnya Allah cinta pada hamba-Nya yang kembali merayu-Nya. Dan ampunan Allah jauh lebih luas dan besar daripada dosa dosa hamba-Nya, Maka mintalah maka kamu akan diampuni. Jadi jika kamu berniat untuk kembali, kembali lah dengan sungguh sungguh.
+                </div>
+                <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border border-blue-200 mb-6">
+                    <span className="font-bold">Catatan Penting 2:</span> Semua bacaan di bawah ini adalah tuntunan sahih. Tuma'ninah (tenang sejenak di setiap gerakan) adalah rukun sholat.
                 </div>
 
                 <div className="space-y-4">
@@ -70,14 +72,14 @@ export default function SholatWajibView({ onGoToDzikir }) {
                                 <p className="font-semibold text-emerald-900 text-lg leading-relaxed">
                                     "{item.latin}"
                                 </p>
-                                                            </div>
+                            </div>
                             <p className="text-sm text-slate-600 italic">Artinya: "{item.arti}"</p>
                         </AccordionCard>
                     ))}
                 </div>
 
                 <div className="mt-8 flex justify-center">
-                    <button 
+                    <button
                         onClick={onGoToDzikir}
                         className="flex items-center gap-2 group text-emerald-600 font-bold hover:text-emerald-700 transition-colors bg-emerald-50 hover:bg-emerald-100 px-6 py-4 rounded-2xl border-2 border-dashed border-emerald-200"
                     >
