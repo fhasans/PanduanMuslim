@@ -1,0 +1,18 @@
+{
+  "name": "SunnahGuide - Panduan Muslim",
+  "short_name": "SunnahGuide",
+  "description": "Panduan Muslim lengkap: Qur'an, Jadwal Sholat, Doa, dan Hafalan.",
+  "start_url": "/PanduanMuslim/",
+  "display": "standalone",
+  "background_color": "#065f46",
+  "theme_color": "#065f46",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
