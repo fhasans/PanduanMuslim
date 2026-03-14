@@ -5,6 +5,7 @@ import { bacaanSholatLengkap, dataSholatWajib } from '../../../data/sholatData.j
 
 export default function SholatWajibView({ onGoToDzikir }) {
     const [selectedWaktu, setSelectedWaktu] = useState(dataSholatWajib[0]);
+    const [bacaanMode, setBacaanMode] = useState('syafii'); // 'syafii' | 'nabi'
 
     return (
         <div>
@@ -49,6 +50,22 @@ export default function SholatWajibView({ onGoToDzikir }) {
                         artiMakmum={selectedWaktu.artiNiat}
                     />
                 </div>
+
+                {/* Toggle Mazhab Bacaan */}
+                <div className="mb-6 bg-white border border-slate-200 rounded-2xl p-1 flex gap-1 shadow-sm">
+                    <button
+                        onClick={() => setBacaanMode('syafii')}
+                        className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${bacaanMode === 'syafii' ? 'bg-emerald-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        📚 Imam Syafi'i (Default)
+                    </button>
+                    <button
+                        onClick={() => setBacaanMode('nabi')}
+                        className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all ${bacaanMode === 'nabi' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}
+                    >
+                        ☪️ Yang Dilakukan Nabi ﷺ
+                    </button>
+                </div>
                 
                 <div className="bg-blue-50 p-4 rounded-xl text-sm text-blue-800 border border-blue-200 mb-6">
                     <span className="font-bold">Catatan Penting 1:</span> Untukmu yang sedang belajar, tidak apa-apa membaca panduan sambil memegang handphone, sholatmu tetap sah. Tenang saja, Allah tidak menuntut kesempurnaan pada hamba-Nya. Dia menghargai setiap usahamu yang terbata-bata. Teruslah melangkah, sesungguhnya Allah cinta pada hamba-Nya yang kembali merayu-Nya. Dan ampunan Allah jauh lebih luas dan besar daripada dosa dosa hamba-Nya, Maka mintalah maka kamu akan diampuni. Jadi jika kamu berniat untuk kembali, kembali lah dengan sungguh sungguh.
@@ -58,28 +75,46 @@ export default function SholatWajibView({ onGoToDzikir }) {
                 </div>
 
                 <div className="space-y-4">
-                    {bacaanSholatLengkap.map((item, idx) => (
-                        <AccordionCard
-                            key={idx}
-                            title={item.gerakan}
-                            icon={idx + 1}
-                            defaultOpen={idx === 0}
-                            extraBadge={
-                                item.instruksi ? (
-                                    <span className="text-[10px] md:text-xs font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full ml-2">
-                                        {item.instruksi}
-                                    </span>
-                                ) : null
-                            }
-                        >
-                            <div className="bg-slate-50 p-3 rounded-lg mb-2 flex justify-between items-start gap-2">
-                                <p className="font-semibold text-emerald-900 text-lg leading-relaxed">
-                                    "{item.latin}"
-                                </p>
-                            </div>
-                            <p className="text-sm text-slate-600 italic">Artinya: "{item.arti}"</p>
-                        </AccordionCard>
-                    ))}
+                    {bacaanSholatLengkap.map((item, idx) => {
+                        // Determine the active text based on mode and whether options exist
+                        const activeData = item.options ? item.options[bacaanMode] : { latin: item.latin, arti: item.arti };
+                        const hasVariant = !!item.options;
+
+                        return (
+                            <AccordionCard
+                                key={idx}
+                                title={item.gerakan}
+                                icon={idx + 1}
+                                defaultOpen={idx === 0}
+                                extraBadge={
+                                    <div className="flex items-center gap-1.5 ml-2 flex-wrap">
+                                        {item.instruksi && (
+                                            <span className="text-[10px] md:text-xs font-semibold bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">
+                                                {item.instruksi}
+                                            </span>
+                                        )}
+                                        {hasVariant && (
+                                            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${bacaanMode === 'syafii' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                                {bacaanMode === 'syafii' ? "Syafi'i" : 'Nabi ﷺ'}
+                                            </span>
+                                        )}
+                                    </div>
+                                }
+                            >
+                                <div className="bg-slate-50 p-3 rounded-lg mb-2 flex justify-between items-start gap-2">
+                                    <p className="font-semibold text-emerald-900 text-lg leading-relaxed">
+                                        "{activeData.latin}"
+                                    </p>
+                                </div>
+                                <p className="text-sm text-slate-600 italic mb-3">Artinya: "{activeData.arti}"</p>
+                                {activeData.catatan && (
+                                    <div className={`text-xs p-3 rounded-xl leading-relaxed border ${bacaanMode === 'nabi' ? 'bg-amber-50 text-amber-900 border-amber-100' : 'bg-emerald-50 text-emerald-900 border-emerald-100'}`}>
+                                        <span className="font-bold">📖 Sumber: </span>{activeData.catatan}
+                                    </div>
+                                )}
+                            </AccordionCard>
+                        );
+                    })}
                 </div>
 
                 <div className="mt-8 flex justify-center">

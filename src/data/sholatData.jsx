@@ -1,6 +1,9 @@
 import React from 'react';
 import { Sunrise, Sun, Clock, Sunset, MoonStar } from 'lucide-react';
 
+// Struktur bacaan dengan opsi ganda (syafii / nabi).
+// Jika ada properti `options`, UI akan menampilkan toggle.
+// Jika tidak ada `options`, gunakan `latin` dan `arti` statis.
 export const bacaanSholatLengkap = [
     {
         gerakan: "Takbiratul Ihram",
@@ -9,10 +12,20 @@ export const bacaanSholatLengkap = [
         arti: "Allah Maha Besar."
     },
     {
-        gerakan: "Doa Iftitah (Shafi'i)",
+        gerakan: "Doa Iftitah",
         instruksi: "Dibaca 1x HANYA pada rakaat pertama",
-        latin: "Allaahu akbar kabiiraa, walhamdu lillaahi katsiiraa, wa subhaanallaahi bukratan wa ashiilaa. Innii wajjahtu wajhiya lilladzii fatharas samaawaati wal ardha haniifan musliman wa maa anaa minal musyrikiin. Inna shalaatii wa nusukii wa mahyaaya wa mamaatii lillaahi rabbil 'aalamiin. Laa syariika lahu wa bidzaalika umirtu wa anaa minal muslimiin.",
-        arti: "Allah Maha Besar dengan sebesar-besarnya, segala puji bagi Allah dengan pujian yang banyak, Maha Suci Allah di waktu pagi dan petang. Sesungguhnya aku hadapkan wajahku kepada Dzat yang menciptakan langit dan bumi dengan keadaan lurus dan berserah diri, dan aku bukanlah dari golongan musyrikin. Sesungguhnya shalatku, ibadahku, hidupku dan matiku hanya untuk Allah, Tuhan semesta alam. Tiada sekutu bagi-Nya, dan demikianlah aku diperintahkan, dan aku termasuk golongan orang-orang muslim."
+        options: {
+            syafii: {
+                latin: "Allaahu akbar kabiiraa, walhamdu lillaahi katsiiraa, wa subhaanallaahi bukratan wa ashiilaa. Innii wajjahtu wajhiya lilladzii fatharas samaawaati wal ardha haniifan musliman wa maa anaa minal musyrikiin. Inna shalaatii wa nusukii wa mahyaaya wa mamaatii lillaahi rabbil 'aalamiin. Laa syariika lahu wa bidzaalika umirtu wa anaa minal muslimiin.",
+                arti: "Allah Maha Besar dengan sebesar-besarnya, segala puji bagi Allah dengan pujian yang banyak, Maha Suci Allah di waktu pagi dan petang. Sesungguhnya aku hadapkan wajahku kepada Dzat yang menciptakan langit dan bumi dengan keadaan lurus dan berserah diri, dan aku bukanlah dari golongan musyrikin. Sesungguhnya shalatku, ibadahku, hidupku dan matiku hanya untuk Allah, Tuhan semesta alam. Tiada sekutu bagi-Nya, dan demikianlah aku diperintahkan, dan aku termasuk golongan orang-orang muslim.",
+                catatan: "Doa iftitah versi ini diriwayatkan dari Umar bin Khathab radhiallahu 'anhu. Inilah yang dipilih dan populer dalam mazhab Syafi'i."
+            },
+            nabi: {
+                latin: "Allaahumma baa'id bainii wa baina khathaa-yaaya kamaa baa'adta bainal masyriqi wal maghrib. Allaahumma naqqinii min khathaa-yaaya kamaa yunaqqats tsaubul abyadhu minad danas. Allaahummaghsilnii min khathaa-yaaya bis salji wal maa-i wal barad.",
+                arti: "Ya Allah, jauhkanlah antara aku dan kesalahan-kesalahanku sebagaimana Engkau menjauhkan antara Timur dan Barat. Ya Allah, bersihkanlah aku dari kesalahan-kesalahanku sebagaimana dibersihkannya kain putih dari noda. Ya Allah, cucilah aku dari kesalahan-kesalahanku dengan salju, air, dan embun.",
+                catatan: "Doa iftitah ini diriwayatkan secara shahih dalam Hadits Bukhari dan Muslim, dari sahabat Abu Hurairah radhiallahu 'anhu, bahwa Nabi ﷺ biasa membaca doa ini."
+            }
+        }
     },
     {
         gerakan: "Membaca Al-Fatihah (Wajib)",
@@ -22,49 +35,96 @@ export const bacaanSholatLengkap = [
     },
     {
         gerakan: "Membaca Surat Pendek / Potongan Ayat Al-Qur'an (Sunnah)",
-        instruksi: "Dianjurkan Setiap Setelah Baca Al-Fatihah",
+        instruksi: "Dianjurkan Setiap Setelah Baca Al-Fatihah (Rakaat 1 & 2)",
         latin: "Bismillaahir rahmaanir rahiim. Qul huwallaahu ahad. Allaahush shamad. Lam yalid wa lam yuulad. Wa lam yakul lahuu kufuwan ahad.",
-        arti: "Diatas adalah contoh surat pendek dari Al-Qur'an"
+        arti: "(Contoh: Surat Al-Ikhlas) Dengan menyebut nama Allah Yang Maha Pengasih lagi Maha Penyayang. Katakanlah: Dialah Allah, Yang Maha Esa. Allah adalah Tuhan yang bergantung kepada-Nya segala sesuatu. Dia tiada beranak dan tidak pula diperanakkan. Dan tidak ada seorang pun yang setara dengan Dia."
     },
     {
         gerakan: "Ruku'",
-        instruksi: "Disunnahkan dibaca 3x SETIAP Ruku'",
-        latin: "Subhaanakallaahumma rabbanaa wa bihamdika allaahummaghfir lii.",
-        arti: "Maha Suci Engkau, ya Allah Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku."
+        instruksi: "Disunnahkan dibaca minimal 3x setiap Ruku'",
+        options: {
+            syafii: {
+                latin: "Subhaana rabbiyal 'azhiimi wa bihamdih.",
+                arti: "Maha Suci Tuhanku Yang Maha Agung dan dengan memuji-Nya.",
+                catatan: "Bacaan ini diriwayatkan secara shahih dalam Sunan Abu Dawud dan Tirmidzi bahwa Nabi ﷺ membaca ini minimal 3x saat ruku'."
+            },
+            nabi: {
+                latin: "Subhaanakallaahumma rabbanaa wa bihamdika allaahummaghfir lii.",
+                arti: "Maha Suci Engkau, ya Allah Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku."
+            },
+
+        }
     },
     {
         gerakan: "I'tidal (Bangkit dari Ruku')",
-        instruksi: "Dibaca 1x setiap berdiri tegak dari Ruku'",
-        latin: "Sami'allaahu liman hamidah. Rabbanaa lakal hamdu mil'us samaawaati wa mil'ul ardhi wa mil'u maa syi'ta min syai-in ba'du.",
-        arti: "Allah maha mendengar pujian orang yang memuji-Nya. Ya Tuhan kami, bagi-Mu segala puji, sepenuh langit dan bumi, dan sepenuh apa yang Engkau kehendaki sesudah itu."
+        instruksi: "Dibaca 1x saat berdiri tegak dari Ruku'",
+        options: {
+            syafii: {
+                latin: "Sami'allaahu liman hamidah. Rabbanaa lakal hamdu mil'us samaawaati wa mil'ul ardhi wa mil'u maa syi'ta min syai-in ba'du.",
+                arti: "Allah maha mendengar pujian orang yang memuji-Nya. Ya Tuhan kami, bagi-Mu segala puji, sepenuh langit dan bumi, dan sepenuh apa yang Engkau kehendaki sesudah itu."
+            },
+            nabi: {
+                latin: "Sami'allaahu liman hamidah. Rabbanaa wa lakal hamdu, hamdan katsiiran thayyiban mubaarakan fii.",
+                arti: "Allah maha mendengar pujian orang yang memuji-Nya. Ya Tuhan kami, bagi-Mu segala puji, pujian yang banyak, baik, dan penuh berkah di dalamnya.",
+                catatan: "Bacaan ini berdasarkan hadits Rifa'ah bin Rafi' dalam Shahih Bukhari, bahwa Nabi ﷺ mengucapkan bacaan ini setelah mendengar seorang sahabat memuji Allah dan menyukainya."
+            }
+        }
     },
     {
         gerakan: "Sujud",
-        instruksi: "Disunnahkan dibaca 3x (setiap kali sujud)",
-        latin: "Subhaanakallaahumma rabbanaa wa bihamdika allaahummaghfir lii.",
-        arti: "Maha Suci Engkau, ya Allah Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku."
+        instruksi: "Disunnahkan dibaca minimal 3x setiap kali Sujud",
+        options: {
+            syafii: {
+                latin: "Subhaana rabbiyal a'laa wa bihamdih.",
+                arti: "Maha Suci Tuhanku Yang Maha Tinggi dan dengan memuji-Nya.",
+                catatan: "Bacaan ini diriwayatkan secara shahih dalam Sunan Abu Dawud dan Tirmidzi, bahwa Nabi ﷺ membaca ini minimal 3x saat sujud."
+            },
+            nabi: {
+                latin: "Subhaanakallaahumma rabbanaa wa bihamdika allaahummaghfir lii.",
+                arti: "Maha Suci Engkau, ya Allah Tuhan kami, dan dengan memuji-Mu. Ya Allah, ampunilah aku."
+            },
+        }
     },
     {
-        gerakan: "Duduk di Antara Dua Sujud (Sunnah)",
-        instruksi: "SANGAT DIANJURKAN Dibaca setiap duduk di antara dua sujud",
+        gerakan: "Duduk di Antara Dua Sujud",
+        instruksi: "Sangat dianjurkan, dibaca setiap duduk di antara dua sujud",
         latin: "Rabbighfirlii warhamnii wajburnii warfa'nii warzuqnii wahdinii wa 'aafinii wa'fu 'annii.",
         arti: "Ya Tuhanku, ampunilah aku, rahmatilah aku, cukupkanlah kekuranganku, angkatlah derajatku, berilah aku rezeki, berilah aku petunjuk, berilah aku kesehatan, dan maafkanlah aku."
     },
     {
         gerakan: "Tasyahud Awal (Duduk Rakaat Kedua)",
         instruksi: "Dibaca 1x saat duduk di rakaat ke-2 (untuk sholat >2 rakaat)",
-        latin: "Attahiyaatu lillaahi wash shalawaatu wath thayyibaat. Assalaamu 'alaika ayyuhan nabiyyu wa rahmatullaahi wa barakaatuh. Assalaamu 'alainaa wa 'alaa 'ibaadillaahish shaalihiin. Asyhadu allaa ilaaha illallaah, wa asyhadu anna Muhammadan 'abduhu wa rasuuluh. Allaahumma shalli 'alaa Sayyidinaa Muhammad.",
-        arti: "Segala penghormatan, sholawat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat Allah, dan keberkahan-Nya tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan hamba-hamba Allah yang shalih. Aku bersaksi tiada tuhan yang berhak disembah selain Allah, dan aku bersaksi Muhammad adalah hamba dan utusan-Nya. Ya Allah, limpahkanlah rahmat kepada penghulu kami Nabi Muhammad."
+        options: {
+            syafii: {
+                latin: "Attahiyyaatul mubaarakaatush-shalawaatuth-thayyibaatu lillaah. Assalaamu 'alaika ayyuhan-nabiyyu wa rahmatullaahi wa barakaatuh. Assalaamu 'alainaa wa 'alaa 'ibaadillaahish-shaalihiin. Asyhadu an laa ilaaha illallaah, wa asyhadu anna Muhammadar rasuulullaah. Allaahumma shalli 'alaa Sayyidinaa Muhammad.",
+                arti: "Segala penghormatan, sholawat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat Allah, dan keberkahan-Nya tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan hamba-hamba Allah yang shalih. Aku bersaksi tiada tuhan yang berhak disembah selain Allah, dan aku bersaksi Muhammad adalah hamba dan utusan-Nya. Ya Allah, limpahkanlah rahmat kepada penghulu kami Nabi Muhammad.",
+                catatan: "Penambahan kata 'Sayyidinaa' (penghulu kami) sebelum 'Muhammad' adalah pilihan yang kuat dalam mazhab Syafi'i sebagai bentuk ta'zhim (pengagungan) kepada Nabi ﷺ."
+            },
+            nabi: {
+                latin: "Attahiyaatu lillaahi wash shalawaatu wath thayyibaat. Assalaamu 'alaika ayyuhan nabiyyu wa rahmatullaahi wa barakaatuh. Assalaamu 'alainaa wa 'alaa 'ibaadillaahish shaalihiin. Asyhadu allaa ilaaha illallaah, wa asyhadu anna Muhammadan 'abduhu wa rasuuluh. Allaahumma shalli 'alaa Muhammad.",
+                arti: "Segala penghormatan, sholawat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat Allah, dan keberkahan-Nya tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan hamba-hamba Allah yang shalih. Aku bersaksi tiada tuhan yang berhak disembah selain Allah, dan aku bersaksi Muhammad adalah hamba dan utusan-Nya. Ya Allah, limpahkanlah rahmat kepada Muhammad.",
+                catatan: "Redaksi tasyahud ini diriwayatkan langsung dari Ibnu Mas'ud radhiallahu 'anhu dalam Shahih Bukhari dan Muslim, beliau mengajarkannya dari Nabi ﷺ tanpa penambahan 'Sayyidinaa'."
+            }
+        }
     },
     {
         gerakan: "Tasyahud Akhir (Duduk Terakhir)",
         instruksi: "Dibaca 1x saat duduk di rakaat paling terakhir",
-        latin: "Attahiyaatu lillaahi wash shalawaatu wath thayyibaat. Assalaamu 'alaika ayyuhan nabiyyu wa rahmatullaahi wa barakaatuh. Assalaamu 'alainaa wa 'alaa 'ibaadillaahish shaalihiin. Asyhadu allaa ilaaha illallaah, wa asyhadu anna Muhammadan 'abduhu wa rasuuluh. Allaahumma shalli 'alaa Sayyidinaa Muhammad wa 'alaa aali Sayyidinaa Muhammad, kamaa shallaita 'alaa Sayyidinaa Ibraahiim wa 'alaa aali Sayyidinaa Ibraahiim, wa baarik 'alaa Sayyidinaa Muhammad wa 'alaa aali Sayyidinaa Muhammad, kamaa baarakta 'alaa Sayyidinaa Ibraahiim wa 'alaa aali Sayyidinaa Ibraahiim, fil 'aalamiina innaka hamiidum majiid.",
-        arti: "Segala penghormatan, sholawat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat Allah, dan keberkahan-Nya tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan hamba-hamba Allah yang shalih. Aku bersaksi tiada tuhan yang berhak disembah selain Allah, dan aku bersaksi Muhammad adalah hamba dan utusan-Nya. Ya Allah, limpahkanlah rahmat kepada penghulu kami Nabi Muhammad dan keluarganya, sebagaimana Engkau melimpahkan rahmat kepada Nabi Ibrahim dan keluarganya, dan berkahilah Nabi Muhammad dan keluarganya, sebagaimana Engkau memberkahi Nabi Ibrahim dan keluarganya, di seluruh alam sesungguhnya Engkau Maha Terpuji lagi Maha Mulia."
+        options: {
+            syafii: {
+                latin: "Attahiyyaatul mubaarakaatush-shalawaatuth-thayyibaatu lillaah. Assalaamu 'alaika ayyuhan-nabiyyu wa rahmatullaahi wa barakaatuh. Assalaamu 'alainaa wa 'alaa 'ibaadillaahish-shaalihiin. Asyhadu an laa ilaaha illallaah, wa asyhadu anna Muhammadar rasuulullaah. Allaahumma shalli 'alaa Sayyidinaa Muhammad wa 'alaa aali Sayyidinaa Muhammad, kamaa shallaita 'alaa Sayyidinaa Ibraahiim wa 'alaa aali Sayyidinaa Ibraahiim, wa baarik 'alaa Sayyidinaa Muhammad wa 'alaa aali Sayyidinaa Muhammad, kamaa baarakta 'alaa Sayyidinaa Ibraahiim wa 'alaa aali Sayyidinaa Ibraahiim, fil 'aalamiina innaka hamiidum majiid.",
+                arti: "Segala penghormatan, sholawat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat Allah, dan keberkahan-Nya tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan hamba-hamba Allah yang shalih. Aku bersaksi tiada tuhan yang berhak disembah selain Allah, dan aku bersaksi Muhammad adalah hamba dan utusan-Nya. Ya Allah, limpahkanlah rahmat kepada penghulu kami Nabi Muhammad dan keluarganya, sebagaimana Engkau melimpahkan rahmat kepada Nabi Ibrahim dan keluarganya, dan berkahilah Nabi Muhammad dan keluarganya, sebagaimana Engkau memberkahi Nabi Ibrahim dan keluarganya, di seluruh alam sesungguhnya Engkau Maha Terpuji lagi Maha Mulia."
+            },
+            nabi: {
+                latin: "Attahiyaatu lillaahi wash shalawaatu wath thayyibaat. Assalaamu 'alaika ayyuhan nabiyyu wa rahmatullaahi wa barakaatuh. Assalaamu 'alainaa wa 'alaa 'ibaadillaahish shaalihiin. Asyhadu allaa ilaaha illallaah, wa asyhadu anna Muhammadan 'abduhu wa rasuuluh. Allaahumma shalli 'alaa Muhammad wa 'alaa aali Muhammad, kamaa shallaita 'alaa Ibraahiim wa 'alaa aali Ibraahiim, wa baarik 'alaa Muhammad wa 'alaa aali Muhammad, kamaa baarakta 'alaa Ibraahiim wa 'alaa aali Ibraahiim, fil 'aalamiina innaka hamiidum majiid.",
+                arti: "Segala penghormatan, sholawat, dan kebaikan adalah milik Allah. Semoga keselamatan, rahmat Allah, dan keberkahan-Nya tercurah kepadamu wahai Nabi. Semoga keselamatan tercurah kepada kami dan hamba-hamba Allah yang shalih. Aku bersaksi tiada tuhan yang berhak disembah selain Allah, dan aku bersaksi Muhammad adalah hamba dan utusan-Nya. Ya Allah, limpahkanlah rahmat kepada Muhammad dan keluarganya, sebagaimana Engkau melimpahkan rahmat kepada Ibrahim dan keluarganya, dan berkahilah Muhammad dan keluarganya, sebagaimana Engkau memberkahi Ibrahim dan keluarganya, di seluruh alam sesungguhnya Engkau Maha Terpuji lagi Maha Mulia.",
+                catatan: "Redaksi shalawat Ibrahimiyyah tanpa imbuhan Sayyidinaa. Ini sesuai nash hadits shahih yang diriwayatkan Bukhari dan Muslim dari Ka'ab bin 'Ujrah radhiallahu 'anhu."
+            }
+        }
     },
     {
         gerakan: "Doa Sebelum Salam",
-        instruksi: "Dibaca 1x sesudah Tasyahud Akhir (Sunnah)",
+        instruksi: "Dibaca 1x sesudah Tasyahud Akhir (Sangat dianjurkan)",
         latin: "Allaahumma innii a'uudzu bika min 'adzaabi jahannam, wa min 'adzaabil qabri, wa min fitnatil mahyaa wal mamaati, wa min syarri fitnatil masiihid dajjaal.",
         arti: "Ya Allah, aku berlindung kepada-Mu dari siksa Jahannam, dari siksa kubur, dari fitnah kehidupan dan kematian, serta dari keburukan fitnah Dajjal."
     },
@@ -77,60 +137,60 @@ export const bacaanSholatLengkap = [
 ];
 
 export const dataSholatWajib = [
-    { 
-        id: 'subuh', 
-        nama: 'Subuh', 
-        waktu: 'Terbit fajar hingga terbit matahari', 
-        rakaat: 2, 
-        icon: <Sunrise size={20} className="text-blue-500" />, 
-        niatSendiri: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+    {
+        id: 'subuh',
+        nama: 'Subuh',
+        waktu: 'Terbit fajar hingga terbit matahari',
+        rakaat: 2,
+        icon: <Sunrise size={20} className="text-blue-500" />,
+        niatSendiri: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati adaa-an lillaahi ta'aalaa.",
         niatImam: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
         niatMakmum: "Ushallii fardhash shubhi rak'ataini mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
-        artiNiat: "Aku berniat sholat fardhu Subuh dua rakaat menghadap kiblat karena Allah Ta'ala." 
+        artiNiat: "Aku berniat sholat fardhu Subuh dua rakaat menghadap kiblat karena Allah Ta'ala."
     },
-    { 
-        id: 'dzuhur', 
-        nama: 'Dzuhur', 
-        waktu: 'Matahari tergelincir ke barat hingga bayangan sama panjang', 
-        rakaat: 4, 
-        icon: <Sun size={20} className="text-amber-500" />, 
-        niatSendiri: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+    {
+        id: 'dzuhur',
+        nama: 'Dzuhur',
+        waktu: 'Matahari tergelincir ke barat hingga bayangan sama panjang',
+        rakaat: 4,
+        icon: <Sun size={20} className="text-amber-500" />,
+        niatSendiri: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.",
         niatImam: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
         niatMakmum: "Ushallii fardhadh dhuhri arba'a raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
-        artiNiat: "Aku berniat sholat fardhu Dzuhur empat rakaat menghadap kiblat karena Allah Ta'ala." 
+        artiNiat: "Aku berniat sholat fardhu Dzuhur empat rakaat menghadap kiblat karena Allah Ta'ala."
     },
-    { 
-        id: 'ashar', 
-        nama: 'Ashar', 
-        waktu: 'Bayangan lebih panjang dari benda hingga matahari terbenam', 
-        rakaat: 4, 
-        icon: <Clock size={20} className="text-orange-500" />, 
-        niatSendiri: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+    {
+        id: 'ashar',
+        nama: 'Ashar',
+        waktu: 'Bayangan lebih panjang dari benda hingga matahari terbenam',
+        rakaat: 4,
+        icon: <Clock size={20} className="text-orange-500" />,
+        niatSendiri: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.",
         niatImam: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
         niatMakmum: "Ushallii fardhal 'ashri arba'a raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
-        artiNiat: "Aku berniat sholat fardhu Ashar empat rakaat menghadap kiblat karena Allah Ta'ala." 
+        artiNiat: "Aku berniat sholat fardhu Ashar empat rakaat menghadap kiblat karena Allah Ta'ala."
     },
-    { 
-        id: 'maghrib', 
-        nama: 'Maghrib', 
-        waktu: 'Matahari terbenam hingga hilangnya mega merah', 
-        rakaat: 3, 
-        icon: <Sunset size={20} className="text-red-500" />, 
-        niatSendiri: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+    {
+        id: 'maghrib',
+        nama: 'Maghrib',
+        waktu: 'Matahari terbenam hingga hilangnya mega merah',
+        rakaat: 3,
+        icon: <Sunset size={20} className="text-red-500" />,
+        niatSendiri: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.",
         niatImam: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
         niatMakmum: "Ushallii fardhal maghribi tsalaatsa raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
-        artiNiat: "Aku berniat sholat fardhu Maghrib tiga rakaat menghadap kiblat karena Allah Ta'ala." 
+        artiNiat: "Aku berniat sholat fardhu Maghrib tiga rakaat menghadap kiblat karena Allah Ta'ala."
     },
-    { 
-        id: 'isya', 
-        nama: 'Isya', 
-        waktu: 'Hilangnya mega merah hingga pertengahan malam', 
-        rakaat: 4, 
-        icon: <MoonStar size={20} className="text-indigo-500" />, 
-        niatSendiri: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.", 
+    {
+        id: 'isya',
+        nama: 'Isya',
+        waktu: 'Hilangnya mega merah hingga pertengahan malam',
+        rakaat: 4,
+        icon: <MoonStar size={20} className="text-indigo-500" />,
+        niatSendiri: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati adaa-an lillaahi ta'aalaa.",
         niatImam: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati imaaman lillaahi ta'aalaa.",
         niatMakmum: "Ushallii fardhal 'isyaa-i arba'a raka'aatin mustaqbilal qiblati makmuuman lillaahi ta'aalaa.",
-        artiNiat: "Aku berniat sholat fardhu Isya empat rakaat menghadap kiblat karena Allah Ta'ala." 
+        artiNiat: "Aku berniat sholat fardhu Isya empat rakaat menghadap kiblat karena Allah Ta'ala."
     }
 ];
 
@@ -168,6 +228,33 @@ export const dataSholatSunnah = [
             { nama: "2 Rakaat Sesudah Maghrib (Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatal maghribi rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Maghrib dua rakaat karena Allah Ta'ala." },
             { nama: "2 Rakaat Sesudah Isya (Mu'akkad)", steps: true, niatSendiri: "Ushallii sunnatal 'isyaa-i rak'ataini ba'diyyatan lillaahi ta'aalaa.", arti: "Aku berniat sholat sunnah sesudah Isya dua rakaat karena Allah Ta'ala." },
             { nama: "PENTING: Tidak Ada Ba'diyah Subuh & Ashar", larangan: true, arti: "Sesuai ajaran Nabi ﷺ, TIDAK ADA sholat sunnah Ba'diyah (sesudah) sholat fardhu Subuh (hingga matahari terbit) dan sesudah sholat fardhu Ashar (hingga matahari terbenam). Keduanya adalah waktu yang terlarang untuk sholat sunnah mutlak/ba'diyah." }
+        ]
+    },
+    {
+        kategori: "Sholat Malam",
+        daftar: [
+            {
+                nama: "Sholat Tahajjud (2 - 12 Rakaat)",
+                keutamaan: "Sholat yang paling utama setelah sholat fardhu. Allah turun ke langit dunia di sepertiga malam terakhir dan mengabulkan doa hamba-Nya. (HR. Bukhari & Muslim)",
+                niatSendiri: "Ushallii sunnatan tahajjudi rak'ataini lillaahi ta'aalaa.",
+                arti: "Aku berniat sholat sunnah Tahajjud dua rakaat karena Allah Ta'ala.",
+                steps: "tahajjud",
+                waktu: "Dikerjakan setelah tidur pada malam hari, hingga sebelum masuk waktu Subuh. Waktu terbaik adalah di sepertiga malam terakhir.",
+                caraTidurDulu: "Sungguhpun tidak wajib, disunnahkan untuk tidur terlebih dahulu sejenak sebelum melaksanakan Tahajjud, agar berbeda dari sholat Witir dan Tarawih.",
+                rakaat: [
+                    { pola: "2 rakaat", keterangan: "Sholat Tahajjud dikerjakan dua rakaat dua rakaat (salam setiap 2 rakaat), boleh 2, 4, 6, 8, atau 12 rakaat, kemudian ditutup dengan 1 rakaat Witir." }
+                ],
+                doaSetelah: {
+                    latin: "Allaahumma lakal hamdu anta qayyumus samaawaati wal ardhi wa man fiihinna. Wa lakal hamdu laka mulkus samaawaati wal ardhi wa man fiihinna. Wa lakal hamdu anta nuurus samaawaati wal ardhi wa man fiihinna. Wa lakal hamdu antal haqq, wa wa'dukal haqq, wa qaulukal haqq, wa liqaa-ukal haqq, wal jannatu haqq, wan naaru haqq, wan nabiyyuuna haqq, wa Muhammadun ﷺ haqq, was saa'atu haqq. Allaahumma laka aslamtu wa bika aamantu wa 'alaika tawakkaltu wa ilaika anabtu wa bika khaashamtu wa ilaika haakamtu. Faghfir lii maa qaddamtu wa maa akhkhartu wa maa asrartu wa maa a'lantu wa maa anta a'lamu bihi minnii. Antal muqaddimu wa antal mu-akhkhiru, laa ilaaha illaa anta, wa laa haula wa laa quwwata illaa billaah.",
+                    arti: "Ya Allah, bagi-Mu segala puji. Engkaulah Pemelihara langit dan bumi serta makhluk yang ada di dalamnya. Bagi-Mu segala puji, Engkaulah Pemilik langit dan bumi serta makhluk yang ada di dalamnya. Bagi-Mu segala puji, Engkaulah Cahaya langit dan bumi. Bagi-Mu segala puji, Engkaulah Yang Mahabenar. Janji-Mu adalah benar, firman-Mu adalah benar, pertemuan dengan-Mu adalah benar, surga adalah benar, neraka adalah benar, para nabi adalah benar, Muhammad ﷺ adalah benar, dan hari kiamat adalah benar. Ya Allah, hanya kepada-Mu aku berserah diri, hanya kepada-Mu aku beriman, hanya kepada-Mu aku bertawakkal, hanya kepada-Mu aku kembali, hanya dengan-Mu aku berdebat, dan hanya kepada-Mu aku berhukum. Maka ampunilah dosaku yang telah lalu dan yang akan datang, yang tersembunyi dan yang terang-terangan, serta dosa yang Engkau lebih mengetahuinya dariku. Engkaulah Yang Maha Mendahulukan dan Yang Maha Mengakhirkan, tidak ada Tuhan yang berhak disembah selain Engkau, dan tidak ada daya serta kekuatan kecuali dengan pertolongan Allah.",
+                    sumber: "HR. Bukhari & Muslim, dari Ibnu Abbas radhiallahu 'anhu, inilah doa yang Nabi ﷺ baca ketika bangun malam untuk sholat Tahajjud."
+                },
+                dzikirKhusus: [
+                    { latin: "Subhaanallaah.", target: 33, label: "Tasbih setelah Tahajjud" },
+                    { latin: "Alhamdulillaah.", target: 33, label: "Tahmid setelah Tahajjud" },
+                    { latin: "Allahu Akbar.", target: 33, label: "Takbir setelah Tahajjud" }
+                ]
+            }
         ]
     },
     {
