@@ -22,10 +22,14 @@ import JadwalSholatSection from './components/sections/JadwalSholatSection.jsx';
 import DoaSection from './components/sections/DoaSection.jsx';
 import PinnedSchedule from './components/layout/PinnedSchedule.jsx';
 import RandomAyat from './components/layout/RandomAyat.jsx';
+import QadhaTracker from './components/sections/qadha/QadhaTracker.jsx';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState('beranda');
     const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [secretTapCount, setSecretTapCount] = useState(0);
+    const [lastTapTime, setLastTapTime] = useState(0);
+    const [showQadhaTracker, setShowQadhaTracker] = useState(false);
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
             const saved = localStorage.getItem('theme');
@@ -69,6 +73,22 @@ export default function App() {
         setDeferredPrompt(null);
     };
 
+    const handleLogoClick = () => {
+        setActiveTab('beranda');
+        const now = Date.now();
+        if (now - lastTapTime > 600) {
+            setSecretTapCount(1);
+        } else {
+            const newCount = secretTapCount + 1;
+            setSecretTapCount(newCount);
+            if (newCount >= 7) {
+                setShowQadhaTracker(true);
+                setSecretTapCount(0);
+            }
+        }
+        setLastTapTime(now);
+    };
+
     const renderContent = () => {
         switch (activeTab) {
             case 'wudhu': return <WudhuSection />;
@@ -78,12 +98,14 @@ export default function App() {
             case 'quran': return <QuranSection />;
             case 'jadwal': return <JadwalSholatSection />;
             case 'doa': return <DoaSection />;
-            default: return <BerandaSection setTab={setActiveTab} />;
+            default: return <BerandaSection setTab={setActiveTab} onSecretTap={handleLogoClick} />;
         }
     };
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 md:pb-0">
+            {showQadhaTracker && <QadhaTracker onClose={() => setShowQadhaTracker(false)} />}
+            
             {/* Mobile Pinned Schedule - sticky top */}
             <div className="md:hidden sticky top-0 z-40 bg-white">
                 <PinnedSchedule />
@@ -93,7 +115,7 @@ export default function App() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6">
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2 cursor-pointer" onClick={() => setActiveTab('beranda')}>
+                            <div className="flex items-center space-x-2 cursor-pointer select-none" onClick={handleLogoClick}>
                                 <BookOpen className="h-8 w-8 text-emerald-600" />
                                 <span className="font-bold text-xl text-emerald-900">Sunnah<span className="text-emerald-500">Guide</span></span>
                             </div>
