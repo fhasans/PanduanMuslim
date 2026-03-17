@@ -61,7 +61,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         }
     };
 
-    const ayatList = item.ayatList || null;
+    const ayatList = item.ayat_list || null;
     const isOldFormat = !ayatList;
 
     return (
@@ -83,7 +83,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                     </div>
                     <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-slate-800 text-sm truncate">{item.judul}</h4>
-                        <p className="text-xs text-slate-400 mt-0.5">{item.surat} · Ayat {item.ayat}</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{item.surat} · Ayat {item.ayat_label}</p>
                     </div>
                 </div>
 
@@ -103,7 +103,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                         </button>
                     )}
 
-                    {item.audioBase64 && !isOpen && (
+                    {item.audio_url && !isOpen && (
                         <button
                             onClick={togglePlay}
                             className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isPlaying ? 'bg-emerald-500 text-white' : 'bg-emerald-100 text-emerald-600 hover:bg-emerald-500 hover:text-white'}`}
@@ -131,14 +131,14 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
             {isOpen && (
                 <div className="border-t border-slate-100">
                     {/* Audio Player */}
-                    {item.audioBase64 && (
+                    {item.audio_url && (
                         <div className="mx-4 mt-4 bg-emerald-50 border border-emerald-200 rounded-xl p-3">
                             <div className="flex items-center gap-2 mb-2">
                                 <Music size={13} className="text-emerald-600" />
                                 <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">Audio Tilawah</span>
-                                {item.audioName && <span className="text-xs text-emerald-500 truncate">· {item.audioName}</span>}
+                                {item.audio_name && <span className="text-xs text-emerald-500 truncate">· {item.audio_name}</span>}
                             </div>
-                            <audio src={item.audioBase64} controls className="w-full" style={{ height: '36px' }} />
+                            <audio src={item.audio_url} controls className="w-full" style={{ height: '36px' }} />
                         </div>
                     )}
 
@@ -231,8 +231,8 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
             )}
 
             {/* Audio hidden untuk play mini */}
-            {item.audioBase64 && !isOpen && (
-                <audio ref={audioRef} src={item.audioBase64} onEnded={() => setIsPlaying(false)} className="hidden" />
+            {item.audio_url && !isOpen && (
+                <audio ref={audioRef} src={item.audio_url} onEnded={() => setIsPlaying(false)} className="hidden" />
             )}
         </div>
     );

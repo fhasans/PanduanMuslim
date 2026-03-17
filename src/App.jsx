@@ -25,7 +25,12 @@ import RandomAyat from './components/layout/RandomAyat.jsx';
 import QadhaTracker from './components/sections/qadha/QadhaTracker.jsx';
 
 export default function App() {
-    const [activeTab, setActiveTab] = useState('beranda');
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('lastActiveTab') || 'beranda';
+        }
+        return 'beranda';
+    });
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [secretTapCount, setSecretTapCount] = useState(0);
     const [lastTapTime, setLastTapTime] = useState(0);
@@ -38,6 +43,12 @@ export default function App() {
         }
         return false;
     });
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('lastActiveTab', activeTab);
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         const handleBeforeInstallPrompt = (e) => {

@@ -4,23 +4,45 @@ import AccordionCard from '../ui/AccordionCard.jsx';
 import { dataJuzAmma } from '../../data/juzAmmaData.js';
 import PotonganSuratForm from './hafalan/PotonganSuratForm.jsx';
 import PotonganSuratCard from './hafalan/PotonganSuratCard.jsx';
+import { supabase } from '../../lib/supabase.js';
 
-// Ambil data potongan dari localStorage
-function loadPotonganFromStorage() {
-    try {
-        return JSON.parse(localStorage.getItem('potonganSuratCustom') || '[]');
-    } catch {
-        return [];
-    }
-}
+// Ambil data potongan dari localStorage telah digantikan dengan fetch Supabase
 
 export default function HafalanSection() {
-    const [activeTab, setActiveTab] = useState('juzamma');
+    const [activeTab, setActiveTab] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('hafalanActiveTab') || 'juzamma';
+        }
+        return 'juzamma';
+    });
+
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('hafalanActiveTab', activeTab);
+        }
+    }, [activeTab]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
 
     // Potongan surat state
-    const [potonganList, setPotonganList] = useState(loadPotonganFromStorage);
+    const [potonganList, setPotonganList] = useState([]);
+    const [loadingPotongan, setLoadingPotongan] = useState(true);
+
+    React.useEffect(() => {
+        async function fetchPotongan() {
+            setLoadingPotongan(true);
+            const { data, error } = await supabase
+                .from('potongan_surat')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (!error && data) {
+                setPotonganList(data);
+            }
+            setLoadingPotongan(false);
+        }
+        fetchPotongan();
+    }, []);
 
     // Admin mode: klik "Hafalan & Bacaan" 5x
     const [titleClickCount, setTitleClickCount] = useState(0);
@@ -40,19 +62,36 @@ export default function HafalanSection() {
         });
     }, []);
 
-    // Tambah potongan baru dari form
+    // Tambah potongan baru dari form (prepend to list)
     const handleAdd = useCallback((newItem) => {
-        setPotonganList(prev => [...prev, newItem]);
+        setPotonganList(prev => [newItem, ...prev]);
     }, []);
 
     // Hapus card (admin mode)
-    const handleDelete = useCallback((id) => {
-        setPotonganList(prev => {
-            const updated = prev.filter(item => item.id !== id);
-            localStorage.setItem('potonganSuratCustom', JSON.stringify(updated));
-            return updated;
-        });
-    }, []);
+    const handleDelete = useCallback(async (id) => {
+        const itemToDelete = potonganList.find(i => i.id === id);
+        if (!itemToDelete) return;
+
+        // Delete from DB
+        const { error } = await supabase.from('potongan_surat').delete().eq('id', id);
+        if (error) {
+            console.error('Gagal menghapus data dari DB:', error.message);
+            return;
+        }
+
+        // Jika ada audio_name atau audio_url, coba hapus dari bucket Storage juga
+        if (itemToDelete.audio_url) {
+            // Kita coba ekstrak filename dari url. Struktur path kita biasanya "audio/namafile.mp3"
+            const urlParts = itemToDelete.audio_url.split('/');
+            const filename = urlParts[urlParts.length - 1];
+            if (filename) {
+                const filePath = `audio/${filename}`;
+                await supabase.storage.from('tilawah').remove([filePath]);
+            }
+        }
+
+        setPotonganList(prev => prev.filter(item => item.id !== id));
+    }, [potonganList]);
 
     // Upgrade card lama ke format per-ayat (dipanggil dari card)
     const handleUpgrade = useCallback((upgradedItem) => {
@@ -210,7 +249,11 @@ export default function HafalanSection() {
 
                     {/* LIST CARDS */}
                     <div className="grid gap-4">
-                        {potonganList.length > 0 ? (
+                        {loadingPotongan ? (
+                            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-slate-200">
+                                <p className="text-slate-500 font-semibold animate-pulse">Memuat data dari server...</p>
+                            </div>
+                        ) : potonganList.length > 0 ? (
                             potonganList.map((item, idx) => (
                                 <PotonganSuratCard
                                     key={item.id}

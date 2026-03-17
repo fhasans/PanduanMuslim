@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, ChevronDown, Plus, Music, AlertCircle, CheckCircle2, X, Search } from 'lucide-react';
+import { supabase } from '../../../lib/supabase.js';
 
 const API_BASE = 'https://equran.id/api/v2';
 
@@ -114,33 +115,50 @@ export default function PotonganSuratForm({ onAdd }) {
                 throw new Error(`Ayat ${start}–${end} tidak ditemukan di surah ${surahInfo.namaLatin}.`);
             }
 
-            // Audio ke base64
-            let audioBase64 = null;
+            const ayatLabel = start === end ? String(start) : `${start}-${end}`;
+            const judul = `${surahInfo.namaLatin} : Ayat ${ayatLabel}`;
+
+            let audio_url = null;
+            let audio_name = null;
+
             if (audioFile) {
-                audioBase64 = await fileToBase64(audioFile);
+                const fileExt = audioFile.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+                const filePath = `audio/${fileName}`;
+
+                const { error: uploadError } = await supabase.storage
+                    .from('tilawah')
+                    .upload(filePath, audioFile);
+
+                if (uploadError) throw new Error('Gagal mengupload audio: ' + uploadError.message);
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('tilawah')
+                    .getPublicUrl(filePath);
+
+                audio_url = publicUrlData.publicUrl;
+                audio_name = audioFile.name;
             }
 
-            const ayatLabel = start === end ? String(start) : `${start}-${end}`;
+            const { data: insertedData, error: dbError } = await supabase
+                .from('potongan_surat')
+                .insert([{
+                    surat: surahInfo.namaLatin,
+                    nama_arab: surahInfo.nama,
+                    nomor_surat: surahInfo.nomor,
+                    ayat_label: ayatLabel,
+                    judul: judul,
+                    ayat_list: selectedAyat,
+                    audio_url: audio_url,
+                    audio_name: audio_name
+                }])
+                .select()
+                .single();
 
-            const newEntry = {
-                id: Date.now(),
-                surat: surahInfo.namaLatin,
-                namaArab: surahInfo.nama,
-                nomor: surahInfo.nomor,
-                ayat: ayatLabel,
-                judul: `${surahInfo.namaLatin} : Ayat ${start === end ? start : `${start}–${end}`}`,
-                // Simpan array ayat (per-ayat)
-                ayatList: selectedAyat,
-                audioBase64,
-                audioName: audioFile ? audioFile.name : null,
-                createdAt: new Date().toISOString(),
-            };
+            if (dbError) throw new Error('Gagal menyimpan ke database: ' + dbError.message);
 
-            const existing = JSON.parse(localStorage.getItem('potonganSuratCustom') || '[]');
-            existing.push(newEntry);
-            localStorage.setItem('potonganSuratCustom', JSON.stringify(existing));
-
-            onAdd(newEntry);
+            // Fetch newly created to state
+            onAdd(insertedData);
 
             setSelectedSurah('');
             setSearchSurah('');
@@ -311,13 +329,4 @@ export default function PotonganSuratForm({ onAdd }) {
             </form>
         </div>
     );
-}
-
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
 }
