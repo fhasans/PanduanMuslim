@@ -54,6 +54,11 @@ export default function HafalanSection() {
         });
     }, []);
 
+    // Upgrade card lama ke format per-ayat (dipanggil dari card)
+    const handleUpgrade = useCallback((upgradedItem) => {
+        setPotonganList(prev => prev.map(item => item.id === upgradedItem.id ? upgradedItem : item));
+    }, []);
+
     // Filter Juz Amma
     const filteredSurat = dataJuzAmma.filter(surat => {
         const matchSearch =
@@ -213,6 +218,7 @@ export default function HafalanSection() {
                                     index={idx}
                                     isAdminMode={isAdminMode}
                                     onDelete={handleDelete}
+                                    onUpgrade={handleUpgrade}
                                 />
                             ))
                         ) : (
