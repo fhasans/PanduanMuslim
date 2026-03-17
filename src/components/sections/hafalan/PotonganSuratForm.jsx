@@ -20,7 +20,6 @@ export default function PotonganSuratForm({ onAdd }) {
 
     const audioInputRef = useRef(null);
 
-    // Ambil daftar surah dari API
     useEffect(() => {
         fetch(`${API_BASE}/surat`)
             .then(res => {
@@ -41,8 +40,7 @@ export default function PotonganSuratForm({ onAdd }) {
         const file = e.target.files[0];
         if (!file) return;
         setAudioFile(file);
-        const url = URL.createObjectURL(file);
-        setAudioPreview(url);
+        setAudioPreview(URL.createObjectURL(file));
     };
 
     const removeAudio = () => {
@@ -66,7 +64,6 @@ export default function PotonganSuratForm({ onAdd }) {
         setIsSubmitting(true);
 
         try {
-            // Ambil detail surah + ayat dari API
             const res = await fetch(`${API_BASE}/surat/${selectedSurah}`);
             if (!res.ok) throw new Error('Gagal mengambil data surah dari API.');
             const data = await res.json();
@@ -75,46 +72,48 @@ export default function PotonganSuratForm({ onAdd }) {
             const start = parseInt(ayatAwal);
             const end = parseInt(ayatAkhir);
 
-            const selectedAyat = allAyat.filter(a => a.nomorAyat >= start && a.nomorAyat <= end);
+            // Simpan per-ayat (bukan gabungan string)
+            const selectedAyat = allAyat
+                .filter(a => a.nomorAyat >= start && a.nomorAyat <= end)
+                .map(a => ({
+                    nomorAyat: a.nomorAyat,
+                    teksArab: a.teksArab,
+                    teksLatin: a.teksLatin,
+                    teksIndonesia: a.teksIndonesia,
+                }));
 
             if (selectedAyat.length === 0) {
                 throw new Error(`Ayat ${start}–${end} tidak ditemukan di surah ${surahInfo.namaLatin}.`);
             }
 
-            // Gabungkan teks arab, latin, dan arti
-            const arab = selectedAyat.map(a => a.teksArab).join(' ');
-            const latin = selectedAyat.map(a => a.teksLatin).join(' ');
-            const arti = selectedAyat.map(a => a.teksIndonesia).join(' ');
-
-            // Simpan audio sebagai base64 untuk localStorage
+            // Audio ke base64
             let audioBase64 = null;
             if (audioFile) {
                 audioBase64 = await fileToBase64(audioFile);
             }
+
+            const ayatLabel = start === end ? String(start) : `${start}-${end}`;
 
             const newEntry = {
                 id: Date.now(),
                 surat: surahInfo.namaLatin,
                 namaArab: surahInfo.nama,
                 nomor: surahInfo.nomor,
-                ayat: start === end ? String(start) : `${start}-${end}`,
+                ayat: ayatLabel,
                 judul: `${surahInfo.namaLatin} : Ayat ${start === end ? start : `${start}–${end}`}`,
-                arab,
-                latin,
-                arti,
+                // Simpan array ayat (per-ayat)
+                ayatList: selectedAyat,
                 audioBase64,
                 audioName: audioFile ? audioFile.name : null,
                 createdAt: new Date().toISOString(),
             };
 
-            // Simpan ke localStorage
             const existing = JSON.parse(localStorage.getItem('potonganSuratCustom') || '[]');
             existing.push(newEntry);
             localStorage.setItem('potonganSuratCustom', JSON.stringify(existing));
 
             onAdd(newEntry);
 
-            // Reset form
             setSelectedSurah('');
             setAyatAwal('');
             setAyatAkhir('');
@@ -130,7 +129,6 @@ export default function PotonganSuratForm({ onAdd }) {
 
     return (
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-            {/* Header form */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-4 flex items-center gap-3">
                 <div className="bg-white/20 rounded-xl p-2">
                     <Plus size={18} className="text-white" />
@@ -144,9 +142,7 @@ export default function PotonganSuratForm({ onAdd }) {
             <form onSubmit={handleSubmit} className="p-5 space-y-4">
                 {/* Field 1: Pilih Surah */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">
-                        Surah
-                    </label>
+                    <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Surah</label>
                     {loadingSurahs ? (
                         <div className="flex items-center gap-2 text-slate-400 text-sm py-2">
                             <Loader2 size={16} className="animate-spin" />
@@ -154,8 +150,7 @@ export default function PotonganSuratForm({ onAdd }) {
                         </div>
                     ) : surahError ? (
                         <div className="flex items-center gap-2 text-red-500 text-sm">
-                            <AlertCircle size={15} />
-                            <span>{surahError}</span>
+                            <AlertCircle size={15} /><span>{surahError}</span>
                         </div>
                     ) : (
                         <div className="relative">
@@ -179,33 +174,21 @@ export default function PotonganSuratForm({ onAdd }) {
 
                 {/* Field 2: Range Ayat */}
                 <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">
-                        Range Ayat
-                    </label>
+                    <label className="block text-xs font-bold text-slate-600 mb-1.5 uppercase tracking-wide">Range Ayat</label>
                     <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                            <input
-                                type="number"
-                                min="1"
-                                placeholder="Ayat awal"
-                                value={ayatAwal}
-                                onChange={e => setAyatAwal(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800"
-                                required
-                            />
-                        </div>
+                        <input
+                            type="number" min="1" placeholder="Ayat awal"
+                            value={ayatAwal} onChange={e => setAyatAwal(e.target.value)}
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800"
+                            required
+                        />
                         <span className="text-slate-400 font-bold text-sm shrink-0">–</span>
-                        <div className="flex-1">
-                            <input
-                                type="number"
-                                min="1"
-                                placeholder="Ayat akhir"
-                                value={ayatAkhir}
-                                onChange={e => setAyatAkhir(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800"
-                                required
-                            />
-                        </div>
+                        <input
+                            type="number" min="1" placeholder="Ayat akhir"
+                            value={ayatAkhir} onChange={e => setAyatAkhir(e.target.value)}
+                            className="flex-1 bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800"
+                            required
+                        />
                     </div>
                     <p className="text-xs text-slate-400 mt-1.5">Contoh: Ayat 1 sampai 5 → masukkan 1 dan 5</p>
                 </div>
@@ -222,13 +205,10 @@ export default function PotonganSuratForm({ onAdd }) {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-xs font-semibold text-emerald-800 truncate">{audioFile?.name}</p>
-                                <audio src={audioPreview} controls className="w-full h-8 mt-1.5" style={{ minWidth: 0 }} />
+                                <audio src={audioPreview} controls className="w-full mt-1.5" style={{ height: '32px' }} />
                             </div>
-                            <button
-                                type="button"
-                                onClick={removeAudio}
-                                className="shrink-0 bg-red-100 hover:bg-red-200 text-red-500 rounded-lg p-1.5 transition-colors"
-                            >
+                            <button type="button" onClick={removeAudio}
+                                className="shrink-0 bg-red-100 hover:bg-red-200 text-red-500 rounded-lg p-1.5 transition-colors">
                                 <X size={14} />
                             </button>
                         </div>
@@ -241,47 +221,31 @@ export default function PotonganSuratForm({ onAdd }) {
                                 <p className="text-sm font-medium text-slate-600 group-hover:text-emerald-700">Klik untuk upload audio</p>
                                 <p className="text-xs text-slate-400">MP3, WAV, M4A, OGG</p>
                             </div>
-                            <input
-                                ref={audioInputRef}
-                                type="file"
-                                accept="audio/*"
-                                className="hidden"
-                                onChange={handleAudioChange}
-                            />
+                            <input ref={audioInputRef} type="file" accept="audio/*" className="hidden" onChange={handleAudioChange} />
                         </label>
                     )}
                 </div>
 
-                {/* Status messages */}
                 {submitError && (
                     <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-3 text-red-700 text-sm">
-                        <AlertCircle size={16} className="shrink-0 mt-0.5" />
-                        <span>{submitError}</span>
+                        <AlertCircle size={16} className="shrink-0 mt-0.5" /><span>{submitError}</span>
                     </div>
                 )}
                 {submitSuccess && (
                     <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl p-3 text-emerald-700 text-sm">
-                        <CheckCircle2 size={16} className="shrink-0" />
-                        <span>Potongan surat berhasil ditambahkan!</span>
+                        <CheckCircle2 size={16} className="shrink-0" /><span>Potongan surat berhasil ditambahkan!</span>
                     </div>
                 )}
 
-                {/* Submit */}
                 <button
                     type="submit"
                     disabled={isSubmitting || loadingSurahs}
                     className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:from-slate-300 disabled:to-slate-300 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-emerald-200 active:scale-[0.98]"
                 >
                     {isSubmitting ? (
-                        <>
-                            <Loader2 size={16} className="animate-spin" />
-                            <span>Mengambil data dari API...</span>
-                        </>
+                        <><Loader2 size={16} className="animate-spin" /><span>Mengambil data dari API...</span></>
                     ) : (
-                        <>
-                            <Plus size={16} />
-                            <span>Tambahkan Potongan Surat</span>
-                        </>
+                        <><Plus size={16} /><span>Tambahkan Potongan Surat</span></>
                     )}
                 </button>
             </form>
@@ -289,7 +253,6 @@ export default function PotonganSuratForm({ onAdd }) {
     );
 }
 
-// Helper: konversi File ke base64 string
 function fileToBase64(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
