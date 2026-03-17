@@ -1,49 +1,114 @@
-import React, { useState } from 'react';
-import { Search, Filter, ChevronDown, Book, Bookmark } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Search, Filter, ChevronDown, Book, Bookmark, Shield, ShieldOff } from 'lucide-react';
 import AccordionCard from '../ui/AccordionCard.jsx';
 import { dataJuzAmma } from '../../data/juzAmmaData.js';
-import { potonganSuratData } from '../../data/potonganSuratData.js';
+import PotonganSuratForm from './hafalan/PotonganSuratForm.jsx';
+import PotonganSuratCard from './hafalan/PotonganSuratCard.jsx';
+
+// Ambil data potongan dari localStorage
+function loadPotonganFromStorage() {
+    try {
+        return JSON.parse(localStorage.getItem('potonganSuratCustom') || '[]');
+    } catch {
+        return [];
+    }
+}
 
 export default function HafalanSection() {
-    const [activeTab, setActiveTab] = useState('juzamma'); // 'juzamma' or 'potongan'
+    const [activeTab, setActiveTab] = useState('juzamma');
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
 
-    const filteredSurat = dataJuzAmma.filter(surat => {
-        const matchSearch = surat.surat.toLowerCase().includes(search.toLowerCase()) ||
-            surat.artiNama.toLowerCase().includes(search.toLowerCase());
+    // Potongan surat state
+    const [potonganList, setPotonganList] = useState(loadPotonganFromStorage);
 
+    // Admin mode: klik "Hafalan & Bacaan" 5x
+    const [titleClickCount, setTitleClickCount] = useState(0);
+    const [isAdminMode, setIsAdminMode] = useState(false);
+
+    const handleTitleClick = useCallback(() => {
+        setTitleClickCount(prev => {
+            const next = prev + 1;
+            if (next >= 5) {
+                setIsAdminMode(am => {
+                    const newMode = !am;
+                    return newMode;
+                });
+                return 0;
+            }
+            return next;
+        });
+    }, []);
+
+    // Tambah potongan baru dari form
+    const handleAdd = useCallback((newItem) => {
+        setPotonganList(prev => [...prev, newItem]);
+    }, []);
+
+    // Hapus card (admin mode)
+    const handleDelete = useCallback((id) => {
+        setPotonganList(prev => {
+            const updated = prev.filter(item => item.id !== id);
+            localStorage.setItem('potonganSuratCustom', JSON.stringify(updated));
+            return updated;
+        });
+    }, []);
+
+    // Filter Juz Amma
+    const filteredSurat = dataJuzAmma.filter(surat => {
+        const matchSearch =
+            surat.surat.toLowerCase().includes(search.toLowerCase()) ||
+            surat.artiNama.toLowerCase().includes(search.toLowerCase());
         let matchFilter = true;
         if (filter === '<10') matchFilter = surat.jumlahAyat < 10;
         if (filter === '10-20') matchFilter = surat.jumlahAyat >= 10 && surat.jumlahAyat <= 20;
         if (filter === '>20') matchFilter = surat.jumlahAyat > 20;
-
         return matchSearch && matchFilter;
     });
 
     return (
         <div className="p-4 md:p-0 space-y-6">
+            {/* Judul — klik 5x untuk admin mode */}
             <div className="text-center md:text-left mb-4">
-                <h2 className="text-2xl font-bold text-slate-900">Hafalan & Bacaan</h2>
-                <p className="text-slate-500 text-sm mt-1">Hafalkan surah pendek atau potongan ayat bermakna untuk shalat Anda.</p>
+                <div className="flex items-center gap-2 md:justify-start justify-center">
+                    <h2
+                        className="text-2xl font-bold text-slate-900 cursor-default select-none"
+                        onClick={handleTitleClick}
+                        title=""
+                    >
+                        Hafalan &amp; Bacaan
+                    </h2>
+                    {isAdminMode && (
+                        <span className="flex items-center gap-1 bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full border border-red-200">
+                            <Shield size={11} />
+                            Admin
+                        </span>
+                    )}
+                </div>
+                <p className="text-slate-500 text-sm mt-1">
+                    {isAdminMode
+                        ? 'Mode admin aktif — klik tombol merah untuk hapus card.'
+                        : 'Hafalkan surah pendek atau potongan ayat bermakna untuk shalat Anda.'}
+                </p>
             </div>
 
             {/* Tab Navigation */}
             <div className="flex bg-slate-100 p-1 rounded-xl w-full max-w-sm mb-6">
-                <button 
-                    onClick={() => setActiveTab('juzamma')} 
+                <button
+                    onClick={() => setActiveTab('juzamma')}
                     className={`flex-1 text-sm py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'juzamma' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     <Book size={16} /> Juz Amma
                 </button>
-                <button 
-                    onClick={() => setActiveTab('potongan')} 
+                <button
+                    onClick={() => setActiveTab('potongan')}
                     className={`flex-1 text-sm py-2 font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 ${activeTab === 'potongan' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                 >
                     <Bookmark size={16} /> Potongan Surat
                 </button>
             </div>
 
+            {/* ===== TAB JUZ AMMA ===== */}
             {activeTab === 'juzamma' ? (
                 <div className="space-y-4 animate-in fade-in">
                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-3">
@@ -92,7 +157,7 @@ export default function HafalanSection() {
                                     <div className="space-y-4">
                                         <div className="bg-indigo-50 p-4 rounded-xl flex justify-between items-start gap-2">
                                             <p className="font-semibold text-lg text-slate-800 leading-relaxed">{surat.bacaan}</p>
-                                                                                    </div>
+                                        </div>
                                         <p className="text-sm text-slate-600 italic border-l-2 border-indigo-200 pl-3">
                                             "{surat.arti}"
                                         </p>
@@ -107,38 +172,56 @@ export default function HafalanSection() {
                         )}
                     </div>
                 </div>
+
             ) : (
+                // ===== TAB POTONGAN SURAT =====
                 <div className="space-y-4 animate-in fade-in">
+                    {/* Info banner */}
                     <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
                         <p className="text-sm text-indigo-800 font-medium">
-                            Potongan ayat yang ringkas namun maknanya bulat dan mendalam, sangat direkomendasikan untuk dibaca setelah surat Al-Fatihah di dalam shalat.
+                            Potongan ayat yang ringkas namun maknanya bulat dan mendalam,
+                            sangat direkomendasikan untuk dibaca setelah surat Al-Fatihah di dalam shalat.
                         </p>
                     </div>
-                    
-                    <div className="grid gap-4">
-                        {potonganSuratData.map((potongan, idx) => (
-                            <AccordionCard
-                                key={idx}
-                                title={potongan.judul}
-                                subtitle={`${potongan.surat} : Ayat ${potongan.ayat}`}
-                                icon={idx + 1}
-                                defaultOpen={idx === 0}
+
+                    {/* FORM TAMBAH */}
+                    <PotonganSuratForm onAdd={handleAdd} />
+
+                    {/* Admin mode banner */}
+                    {isAdminMode && (
+                        <div className="flex items-center justify-between bg-red-50 border border-red-200 rounded-xl px-4 py-3">
+                            <div className="flex items-center gap-2 text-red-700 text-sm font-medium">
+                                <Shield size={15} />
+                                Mode Admin Aktif — Tombol hapus tersedia pada setiap card
+                            </div>
+                            <button
+                                onClick={() => setIsAdminMode(false)}
+                                className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-bold"
                             >
-                                <div className="space-y-4">
-                                    <div className="bg-indigo-50 p-4 rounded-xl flex flex-col items-end gap-3 border border-indigo-100">
-                                        <p className="font-arabic text-2xl md:text-3xl leading-loose font-bold text-slate-800 text-right w-full">
-                                            {potongan.arab}
-                                        </p>
-                                                                            </div>
-                                    <div className="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100 leading-relaxed font-medium">
-                                        "{potongan.latin}"
-                                    </div>
-                                    <p className="text-sm text-slate-600 italic border-l-2 border-indigo-200 pl-3">
-                                        Artinya: "{potongan.arti}"
-                                    </p>
-                                </div>
-                            </AccordionCard>
-                        ))}
+                                <ShieldOff size={13} /> Nonaktifkan
+                            </button>
+                        </div>
+                    )}
+
+                    {/* LIST CARDS */}
+                    <div className="grid gap-4">
+                        {potonganList.length > 0 ? (
+                            potonganList.map((item, idx) => (
+                                <PotonganSuratCard
+                                    key={item.id}
+                                    item={item}
+                                    index={idx}
+                                    isAdminMode={isAdminMode}
+                                    onDelete={handleDelete}
+                                />
+                            ))
+                        ) : (
+                            <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                                <Bookmark className="mx-auto text-slate-300 mb-3" size={36} />
+                                <p className="text-slate-500 font-semibold">Belum ada potongan surat</p>
+                                <p className="text-slate-400 text-sm mt-1">Gunakan form di atas untuk menambahkan</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
