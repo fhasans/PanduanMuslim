@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, ChevronDown, Plus, Music, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { Loader2, ChevronDown, Plus, Music, AlertCircle, CheckCircle2, X, Search } from 'lucide-react';
 
 const API_BASE = 'https://equran.id/api/v2';
 
@@ -9,6 +9,8 @@ export default function PotonganSuratForm({ onAdd }) {
     const [surahError, setSurahError] = useState(null);
 
     const [selectedSurah, setSelectedSurah] = useState('');
+    const [searchSurah, setSearchSurah] = useState('');
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [ayatAwal, setAyatAwal] = useState('');
     const [ayatAkhir, setAyatAkhir] = useState('');
     const [audioFile, setAudioFile] = useState(null);
@@ -19,6 +21,32 @@ export default function PotonganSuratForm({ onAdd }) {
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
     const audioInputRef = useRef(null);
+    const dropdownRef = useRef(null);
+
+    // Filter logic per menu Quran
+    const normalize = (str) =>
+        str.toLowerCase()
+           .replace(/[-\s''`]/g, '')
+           .replace(/^(al|at|an|ar|as|ash|az|ad|adh|adz)/i, '');
+
+    const q = normalize(searchSurah);
+
+    const filteredSurahs = surahs.filter(s =>
+        !searchSurah ||
+        normalize(s.namaLatin).includes(q) ||
+        s.arti.toLowerCase().includes(searchSurah.toLowerCase()) ||
+        String(s.nomor).startsWith(searchSurah.trim())
+    );
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     useEffect(() => {
         fetch(`${API_BASE}/surat`)
@@ -115,6 +143,7 @@ export default function PotonganSuratForm({ onAdd }) {
             onAdd(newEntry);
 
             setSelectedSurah('');
+            setSearchSurah('');
             setAyatAwal('');
             setAyatAkhir('');
             removeAudio();
@@ -153,21 +182,52 @@ export default function PotonganSuratForm({ onAdd }) {
                             <AlertCircle size={15} /><span>{surahError}</span>
                         </div>
                     ) : (
-                        <div className="relative">
-                            <select
-                                value={selectedSurah}
-                                onChange={e => setSelectedSurah(e.target.value)}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800 appearance-none cursor-pointer"
-                                required
-                            >
-                                <option value="">-- Pilih surah --</option>
-                                {surahs.map(s => (
-                                    <option key={s.nomor} value={s.nomor}>
-                                        {s.nomor}. {s.namaLatin} ({s.arti}) — {s.jumlahAyat} ayat
-                                    </option>
-                                ))}
-                            </select>
-                            <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                        <div className="relative" ref={dropdownRef}>
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400">
+                                    <Search size={16} />
+                                </div>
+                                <input
+                                    type="text"
+                                    placeholder="Cari nama, arti, atau nomor surah..."
+                                    value={searchSurah}
+                                    onChange={e => {
+                                        setSearchSurah(e.target.value);
+                                        setSelectedSurah(''); // Reset selection when typing
+                                        setIsDropdownOpen(true);
+                                    }}
+                                    onFocus={() => setIsDropdownOpen(true)}
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-11 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400 text-slate-800"
+                                />
+                                <ChevronDown size={16} className={`absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                            </div>
+
+                            {/* Dropdown Options */}
+                            {isDropdownOpen && (
+                                <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-xl shadow-lg max-h-60 overflow-y-auto p-1 text-sm">
+                                    {filteredSurahs.length > 0 ? (
+                                        filteredSurahs.map(s => (
+                                            <button
+                                                key={s.nomor}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedSurah(s.nomor);
+                                                    setSearchSurah(`${s.nomor}. ${s.namaLatin} (${s.arti})`);
+                                                    setIsDropdownOpen(false);
+                                                }}
+                                                className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between group ${String(selectedSurah) === String(s.nomor) ? 'bg-emerald-50 text-emerald-700 font-medium' : 'hover:bg-slate-50 text-slate-700'} active:scale-[0.98]`}
+                                            >
+                                                <span>{s.nomor}. {s.namaLatin} <span className="text-slate-500 font-normal">({s.arti})</span></span>
+                                                <span className="text-xs text-slate-400 group-hover:text-emerald-500 whitespace-nowrap ml-2">{s.jumlahAyat} ayat</span>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="px-3 py-4 text-center text-slate-500">
+                                            Surah tidak ditemukan
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
