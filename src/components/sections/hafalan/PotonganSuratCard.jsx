@@ -30,6 +30,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
     const audioRef = useRef(null);
     const targetTimeRef = useRef(null);
     const isAutoLooping = useRef(false);
+    const ayatRefs = useRef([]);
     const [loopType, setLoopType] = useState('none');
     const [loopCount, setLoopCount] = useState(3);
     const [loopTime, setLoopTime] = useState('');
@@ -132,6 +133,19 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
             setIsPlaying(false);
         }
     };
+
+    // Auto-scroll to active verse
+    useEffect(() => {
+        if (activeAyatIndex >= 0 && isPlaying && !isEditingTiming) {
+            const activeRef = ayatRefs.current[activeAyatIndex];
+            if (activeRef) {
+                activeRef.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center',
+                });
+            }
+        }
+    }, [activeAyatIndex, isPlaying, isEditingTiming]);
 
     // Upgrade card lama: re-fetch per-ayat dari API
     const handleUpgrade = async (e) => {
@@ -411,26 +425,32 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                         <div className="space-y-4 p-4">
                             {ayatList.map((ayat, i) => {
                                 const isActive = i === activeAyatIndex && !isEditingTiming && isPlaying;
+                                const isDimmed = activeAyatIndex >= 0 && !isActive && !isEditingTiming && isPlaying;
+                                
                                 return (
-                                <div key={ayat.nomorAyat} className={`bg-white rounded-2xl border ${isActive ? 'border-indigo-300 ring-2 ring-indigo-100 shadow-md transform scale-[1.01]' : 'border-slate-100 shadow-sm'} overflow-hidden transition-all duration-300`}>
+                                <div 
+                                    key={ayat.nomorAyat} 
+                                    ref={el => ayatRefs.current[i] = el}
+                                    className={`bg-white dark:bg-slate-800 rounded-2xl border transition-all duration-500 ${isActive ? 'border-indigo-300 dark:border-indigo-500 ring-2 ring-indigo-100 dark:ring-indigo-900 shadow-md transform scale-[1.01]' : 'border-slate-100 dark:border-slate-700 shadow-sm'} ${isDimmed ? 'opacity-40 grayscale-[0.5]' : 'opacity-100'} overflow-hidden`}
+                                >
                                     {/* Bar nomor ayat */}
-                                    <div className={`flex items-center justify-between px-4 py-2.5 border-b ${isActive ? 'bg-indigo-50 border-indigo-100' : 'bg-slate-50 border-slate-100'}`}>
+                                    <div className={`flex items-center justify-between px-4 py-2.5 border-b ${isActive ? 'bg-indigo-50 dark:bg-indigo-900/40 border-indigo-100 dark:border-indigo-800' : 'bg-slate-50 dark:bg-slate-900/40 border-slate-100 dark:border-slate-700'}`}>
                                         <div className="flex items-center gap-2">
                                             <div className="relative w-7 h-7 shrink-0">
-                                                <svg viewBox="0 0 28 28" className="w-full h-full text-indigo-100">
-                                                    <polygon points="14,1 27,7.5 27,20.5 14,27 1,20.5 1,7.5" fill="currentColor" stroke="#a5b4fc" strokeWidth="1" />
+                                                <svg viewBox="0 0 28 28" className="w-full h-full text-indigo-100 dark:text-indigo-900/60">
+                                                    <polygon points="14,1 27,7.5 27,20.5 14,27 1,20.5 1,7.5" fill="currentColor" stroke={isActive ? "#6366f1" : "#a5b4fc"} strokeWidth="1" />
                                                 </svg>
-                                                <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold ${isActive ? 'text-indigo-800' : 'text-indigo-700'}`}>
+                                                <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold ${isActive ? 'text-indigo-800 dark:text-indigo-200' : 'text-indigo-700 dark:text-indigo-400'}`}>
                                                     {ayat.nomorAyat}
                                                 </span>
                                             </div>
-                                            <span className={`text-xs font-medium transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400'}`}>Ayat {ayat.nomorAyat}</span>
+                                            <span className={`text-xs font-medium transition-colors ${isActive ? 'text-indigo-600 dark:text-indigo-300' : 'text-slate-400 dark:text-slate-500'}`}>Ayat {ayat.nomorAyat}</span>
                                         </div>
 
                                         {isEditingTiming && (
                                             <button 
                                                 onClick={() => setTempTimings(prev => ({...prev, [ayat.nomorAyat]: audioRef.current?.currentTime || 0}))}
-                                                className="flex items-center gap-1.5 bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white transition-colors px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm"
+                                                className="flex items-center gap-1.5 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-600 dark:hover:bg-indigo-500 text-indigo-700 dark:text-indigo-200 hover:text-white transition-colors px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm"
                                             >
                                                 <Clock size={12} />
                                                 <span>Set ({formatTime(tempTimings[ayat.nomorAyat] !== undefined ? tempTimings[ayat.nomorAyat] : ayat.timestamp)})</span>
@@ -439,33 +459,39 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                                     </div>
 
                                     {/* Teks Arab — marker ﴿X﴾ di akhir teks (kiri secara visual RTL) */}
-                                    <div className={`px-5 pt-5 pb-3 transition-colors ${isActive ? 'bg-indigo-50/10' : ''}`}>
+                                    <div className={`px-5 pt-5 pb-3 transition-all duration-500 ${isActive ? 'bg-yellow-50/30 dark:bg-yellow-900/10' : ''}`}>
                                         <p
-                                            className={`text-right text-2xl md:text-3xl leading-[2.6] ${isActive ? 'text-indigo-900 font-medium' : 'text-slate-800'}`}
+                                            className={`text-right text-2xl md:text-3xl leading-[2.6] transition-all duration-500 ${isActive ? 'text-indigo-900 dark:text-indigo-50 font-medium' : 'text-slate-800 dark:text-slate-200'}`}
                                             style={{ fontFamily: 'serif', direction: 'rtl', unicodeBidi: 'embed' }}
                                         >
-                                            {ayat.teksArab}
-                                            {' '}
-                                            <span className={`${isActive ? 'text-indigo-500' : 'text-indigo-400'} text-xl font-bold`} style={{ fontFamily: 'serif' }}>
-                                                ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
+                                            <span className={`px-1 rounded-md transition-all duration-500 ${isActive ? 'bg-yellow-200/50 dark:bg-yellow-500/20 ring-4 ring-yellow-200/50 dark:ring-yellow-500/20' : ''}`}>
+                                                {ayat.teksArab}
+                                                {' '}
+                                                <span className={`${isActive ? 'text-indigo-500 dark:text-indigo-300' : 'text-indigo-400 dark:text-indigo-600'} text-xl font-bold`} style={{ fontFamily: 'serif' }}>
+                                                    ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
+                                                </span>
                                             </span>
                                         </p>
                                     </div>
 
                                     {/* Latin & Terjemahan */}
-                                    <div className={`px-5 pb-4 space-y-2 border-t pt-3 transition-colors ${isActive ? 'border-indigo-100 bg-indigo-50/30' : 'border-slate-100'}`}>
+                                    <div className={`px-5 pb-4 space-y-3 border-t pt-4 transition-colors ${isActive ? 'border-indigo-100 dark:border-indigo-950 bg-indigo-50/20 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-700'}`}>
                                         {ayat.teksLatin && (
-                                            <p className={`text-sm italic leading-relaxed font-medium ${isActive ? 'text-indigo-700 font-bold' : 'text-indigo-600'}`}>
-                                                {ayat.teksLatin}
-                                                {' '}
-                                                <span className={`not-italic font-bold text-xs ${isActive ? 'text-indigo-500' : 'text-indigo-400'}`}>
-                                                    ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
-                                                </span>
-                                            </p>
+                                            <div className="relative">
+                                                <p className={`text-sm italic leading-relaxed font-medium transition-all duration-500 ${isActive ? 'text-indigo-700 dark:text-indigo-300 font-bold' : 'text-indigo-600 dark:text-indigo-500'}`}>
+                                                    <span className={`px-1.5 py-0.5 rounded-lg transition-all duration-500 ${isActive ? 'bg-yellow-100/60 dark:bg-yellow-500/20 ring-2 ring-yellow-100/60 dark:ring-yellow-500/20 shadow-sm' : ''}`}>
+                                                        {ayat.teksLatin}
+                                                        {' '}
+                                                        <span className={`not-italic font-bold text-xs ${isActive ? 'text-indigo-500' : 'text-indigo-400'}`}>
+                                                            ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
+                                                        </span>
+                                                    </span>
+                                                </p>
+                                            </div>
                                         )}
                                         {ayat.teksIndonesia && (
-                                            <p className={`text-sm leading-relaxed ${isActive ? 'text-slate-700 font-medium' : 'text-slate-600'}`}>
-                                                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full font-bold text-[10px] mr-1 shrink-0 ${isActive ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>
+                                            <p className={`text-sm leading-relaxed transition-all duration-500 ${isActive ? 'text-slate-700 dark:text-slate-100 font-medium' : 'text-slate-600 dark:text-slate-400'}`}>
+                                                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full font-bold text-[10px] mr-1.5 shrink-0 ${isActive ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}>
                                                     {ayat.nomorAyat}
                                                 </span>
                                                 {ayat.teksIndonesia}
