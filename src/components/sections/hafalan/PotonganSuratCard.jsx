@@ -43,12 +43,14 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         if (isEditingTiming && ayatList) {
             const initialTimings = {};
             ayatList.forEach(a => {
-                // If the ayat already has word_timings use them, otherwise use the old single timestamp for the first word
-                if (a.word_timings && a.word_timings.length > 0) {
-                    initialTimings[a.nomorAyat] = [...a.word_timings];
+                // Event-based format: [[time, wordIdx], [time, wordIdx], ...]
+                if (a.sync_events && Array.isArray(a.sync_events)) {
+                    initialTimings[a.nomorAyat] = [...a.sync_events];
+                } else if (a.word_timings && a.word_timings.length > 0) {
+                    // Convert old format to events: each word is one event
+                    initialTimings[a.nomorAyat] = a.word_timings.map((t, idx) => [t, idx]);
                 } else if (a.timestamp !== undefined) {
-                    // Start with an array containing the verse timestamp
-                    initialTimings[a.nomorAyat] = [a.timestamp];
+                    initialTimings[a.nomorAyat] = [[a.timestamp, 0]];
                 } else {
                     initialTimings[a.nomorAyat] = [];
                 }
@@ -200,15 +202,19 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         setIsSavingTiming(true);
         try {
             const updatedAyatList = ayatList.map(a => {
-                const timings = tempTimings[a.nomorAyat] || [];
+                const events = tempTimings[a.nomorAyat] || [];
+                // Standardize: always sort events by time
+                const sortedEvents = [...events].sort((a, b) => a[0] - b[0]);
+                
                 return {
                     ...a,
-                    word_timings: Array.isArray(timings) ? timings : [timings],
-                    // Verse-level timestamp for fallback (first word's time)
-                    timestamp: (Array.isArray(timings) && timings.length > 0) ? timings[0] : (timings || a.timestamp)
+                    sync_events: sortedEvents,
+                    // Verse-level timestamp for backward compatibility (first event time)
+                    timestamp: sortedEvents.length > 0 ? sortedEvents[0][0] : a.timestamp,
+                    word_timings: undefined // Cleanup
                 };
             });
-            
+
             const { error } = await supabase
                 .from('potongan_surat')
                 .update({ ayat_list: updatedAyatList })
@@ -236,16 +242,12 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         
         // Find which verse is playing
         let newIndex = -1;
-        // Find the last verse that has a valid timestamp <= currentTime
         for (let i = ayatList.length - 1; i >= 0; i--) {
-            const timings = ayatList[i].word_timings;
-            let startTime = (timings && timings.length > 0) ? timings[0] : ayatList[i].timestamp;
+            // Priority: sync_events, then timestamp
+            const events = ayatList[i].sync_events;
+            let startTime = (events && events.length > 0) ? events[0][0] : ayatList[i].timestamp;
             
-            // Convert to number and check if valid
             startTime = Number(startTime);
-            
-            // If startTime is 0, only accept it for the FIRST ayat (index 0)
-            // This prevents jumping to uninitialized later verses that might have 0
             if (i > 0 && startTime <= 0) continue;
             
             if (!isNaN(startTime) && time >= startTime) {
@@ -517,30 +519,34 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                                                 <p className={`text-sm italic leading-relaxed font-medium transition-all duration-500 ${isActive ? 'text-indigo-700 dark:text-indigo-100' : 'text-indigo-600 dark:text-indigo-500'}`}>
                                                     <span className="flex flex-wrap gap-x-1.5 gap-y-1">
                                                         {ayat.teksLatin.split(' ').map((word, wordIdx) => {
-                                                            const timings = (isEditingTiming ? tempTimings[ayat.nomorAyat] : ayat.word_timings) || [];
-                                                            const startTime = timings[wordIdx];
-                                                            const nextTime = timings[wordIdx + 1];
+                                                            const events = (isEditingTiming ? tempTimings[ayat.nomorAyat] : ayat.sync_events) || [];
                                                             
-                                                            const isWordActive = !isEditingTiming && isActive && startTime !== undefined && currentTime >= startTime && (nextTime === undefined || currentTime < nextTime);
+                                                            // For highlighting, find the absolute latest event that matches this word AND is active
+                                                            let isWordActive = false;
+                                                            if (!isEditingTiming && isActive) {
+                                                                // Find the event in the entire timeline that is current
+                                                                const currentEvent = [...events].reverse().find(ev => ev[0] <= currentTime);
+                                                                if (currentEvent && currentEvent[1] === wordIdx) {
+                                                                    isWordActive = true;
+                                                                }
+                                                            }
                                                             
                                                             return (
                                                                 <span 
                                                                     key={wordIdx}
                                                                     onClick={() => {
                                                                         if (isEditingTiming && audioRef.current) {
-                                                                            const newTimings = [...(tempTimings[ayat.nomorAyat] || [])];
-                                                                            newTimings[wordIdx] = audioRef.current.currentTime;
-                                                                            setTempTimings(prev => ({ ...prev, [ayat.nomorAyat]: newTimings }));
+                                                                            const newEvents = [...(tempTimings[ayat.nomorAyat] || [])];
+                                                                            // APEND new event (time, wordIdx)
+                                                                            newEvents.push([audioRef.current.currentTime, wordIdx]);
+                                                                            // Keep them sorted for safety, though clicking usually happens in order
+                                                                            newEvents.sort((a,b) => a[0] - b[0]);
+                                                                            setTempTimings(prev => ({ ...prev, [ayat.nomorAyat]: newEvents }));
                                                                         }
                                                                     }}
                                                                     className={`px-1 rounded-md transition-all duration-200 ${isWordActive ? 'bg-yellow-200 dark:bg-yellow-500/40 text-indigo-900 dark:text-white font-bold ring-2 ring-yellow-200 dark:ring-yellow-500/40 shadow-sm' : ''} ${isEditingTiming ? 'cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-dashed border-indigo-300 dark:border-indigo-700' : ''}`}
                                                                 >
                                                                     {word}
-                                                                    {isEditingTiming && startTime !== undefined && (
-                                                                        <span className="block text-[8px] font-bold text-indigo-500 mt-0.5">
-                                                                            {Number(startTime).toFixed(2)}s
-                                                                        </span>
-                                                                    )}
                                                                 </span>
                                                             );
                                                         })}
@@ -549,6 +555,34 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                                                         </span>
                                                     </span>
                                                 </p>
+
+                                                {/* Event Timeline Editor (Log) */}
+                                                {isEditingTiming && tempTimings[ayat.nomorAyat] && tempTimings[ayat.nomorAyat].length > 0 && (
+                                                    <div className="mt-3 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-dashed border-slate-200 dark:border-slate-800">
+                                                        <p className="text-[10px] font-bold text-slate-400 mb-2 uppercase tracking-tighter">Timeline Kejadian (Klik kata untuk menambah, silang untuk hapus)</p>
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {tempTimings[ayat.nomorAyat].map((ev, evIdx) => {
+                                                                const words = ayat.teksLatin.split(' ');
+                                                                return (
+                                                                    <div key={evIdx} className="flex items-center gap-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 pl-2 pr-1 py-0.5 rounded-md shadow-sm">
+                                                                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400">{formatTime(ev[0])}</span>
+                                                                        <span className="text-[10px] text-slate-600 dark:text-slate-300 truncate max-w-[60px]">{words[ev[1]]}</span>
+                                                                        <button 
+                                                                            onClick={() => {
+                                                                                const newEvents = [...tempTimings[ayat.nomorAyat]];
+                                                                                newEvents.splice(evIdx, 1);
+                                                                                setTempTimings(prev => ({ ...prev, [ayat.nomorAyat]: newEvents }));
+                                                                            }}
+                                                                            className="w-4 h-4 flex items-center justify-center rounded-full hover:bg-red-100 text-slate-400 hover:text-red-500 transition-colors"
+                                                                        >
+                                                                            ×
+                                                                        </button>
+                                                                    </div>
+                                                                )
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                         {ayat.teksIndonesia && (
