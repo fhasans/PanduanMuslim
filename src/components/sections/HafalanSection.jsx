@@ -44,23 +44,31 @@ export default function HafalanSection() {
         fetchPotongan();
     }, []);
 
-    // Admin mode: klik "Hafalan & Bacaan" 5x
+    // Admin mode: klik "Hafalan & Bacaan" 5x (Persist di localStorage)
     const [titleClickCount, setTitleClickCount] = useState(0);
-    const [isAdminMode, setIsAdminMode] = useState(false);
+    const [isAdminMode, setIsAdminMode] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('hafalanAdminMode') === 'true';
+        }
+        return false;
+    });
 
     const handleTitleClick = useCallback(() => {
+        console.log(`Title click: ${titleClickCount + 1}/5`);
         setTitleClickCount(prev => {
             const next = prev + 1;
             if (next >= 5) {
                 setIsAdminMode(am => {
                     const newMode = !am;
+                    localStorage.setItem('hafalanAdminMode', newMode.toString());
+                    console.log(`Admin Mode: ${newMode}`);
                     return newMode;
                 });
                 return 0;
             }
             return next;
         });
-    }, []);
+    }, [titleClickCount]);
 
     // Tambah potongan baru dari form (prepend to list)
     const handleAdd = useCallback((newItem) => {
@@ -115,13 +123,20 @@ export default function HafalanSection() {
             {/* Judul — klik 5x untuk admin mode */}
             <div className="text-center md:text-left mb-4">
                 <div className="flex items-center gap-2 md:justify-start justify-center">
-                    <h2
-                        className="text-2xl font-bold text-slate-900 cursor-default select-none"
-                        onClick={handleTitleClick}
-                        title=""
-                    >
-                        Hafalan &amp; Bacaan
-                    </h2>
+                    <div className="relative">
+                        <h2
+                            className="text-2xl font-bold text-slate-900 cursor-pointer select-none active:scale-95 transition-all hover:text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50"
+                            onClick={handleTitleClick}
+                            title="Klik 5x untuk Mode Admin"
+                        >
+                            Hafalan &amp; Bacaan
+                        </h2>
+                        {titleClickCount > 0 && (
+                            <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 rounded-full animate-bounce shadow-md pointer-events-none">
+                                {titleClickCount}/5
+                            </div>
+                        )}
+                    </div>
                     {isAdminMode && (
                         <span className="flex items-center gap-1 bg-red-100 text-red-600 text-xs font-bold px-2 py-0.5 rounded-full border border-red-200">
                             <Shield size={11} />
