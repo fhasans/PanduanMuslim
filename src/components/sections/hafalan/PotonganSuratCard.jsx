@@ -13,6 +13,8 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
     const [isPlaying, setIsPlaying] = useState(false);
     const [isUpgrading, setIsUpgrading] = useState(false);
     const audioRef = useRef(null);
+    const targetTimeRef = useRef(null);
+    const isAutoLooping = useRef(false);
     const [loopType, setLoopType] = useState('none');
     const [loopCount, setLoopCount] = useState(3);
     const [loopTime, setLoopTime] = useState('');
@@ -28,6 +30,28 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
             setTimezoneLabel('Lokal');
         }
     }, []);
+
+    useEffect(() => {
+        if (loopType === 'time' && loopTime) {
+            const now = new Date();
+            const [tH, tM] = loopTime.split(':').map(Number);
+            const target = new Date();
+            target.setHours(tH, tM, 0, 0);
+            
+            // Jika target < now (waktu sudah lewat), pastikan apakah itu lewat karena telat beberapa detik,
+            // atau targetnya memang buat besok pagi.
+            if (target.getTime() < now.getTime()) {
+                const diff = now.getTime() - target.getTime();
+                // Jika selisihnya lebih dari 5 menit, asumsikan maksudnya adalah besok
+                if (diff > 5 * 60 * 1000) {
+                    target.setDate(target.getDate() + 1);
+                }
+            }
+            targetTimeRef.current = target.getTime();
+        } else {
+            targetTimeRef.current = null;
+        }
+    }, [loopType, loopTime]);
 
     const togglePlay = (e) => {
         e.stopPropagation();
@@ -54,6 +78,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         if (loopType === 'count') {
             if (loopRemaining > 0) {
                 setLoopRemaining(prev => prev - 1);
+                isAutoLooping.current = true;
                 if (audioRef.current) {
                     audioRef.current.currentTime = 0;
                     audioRef.current.play();
@@ -62,22 +87,14 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                 setIsPlaying(false);
             }
         } else if (loopType === 'time') {
-            if (!loopTime) {
+            if (!targetTimeRef.current) {
                 setIsPlaying(false);
                 return;
             }
             
             const now = new Date();
-            const [tH, tM] = loopTime.split(':').map(Number);
-            const target = new Date();
-            target.setHours(tH, tM, 0, 0);
-            
-            // Jika target time sudah terlewat hari ini, asumsikan untuk besok
-            if (now.getTime() > target.getTime()) {
-                target.setDate(target.getDate() + 1);
-            }
-            
-            if (now.getTime() < target.getTime()) {
+            if (now.getTime() < targetTimeRef.current) {
+                isAutoLooping.current = true;
                 if (audioRef.current) {
                     audioRef.current.currentTime = 0;
                     audioRef.current.play();
@@ -215,8 +232,10 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                             onEnded={handleAudioEnded}
                             onPlay={(e) => {
                                 setIsPlaying(true);
-                                if (loopType === 'count') {
-                                    if (loopRemaining <= 0) {
+                                if (isAutoLooping.current) {
+                                    isAutoLooping.current = false;
+                                } else {
+                                    if (loopType === 'count') {
                                         setLoopRemaining(loopCount > 0 ? loopCount - 1 : 0);
                                     }
                                 }

@@ -114,7 +114,7 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20 md:pb-0">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-900 font-sans text-slate-800 dark:text-slate-100 pb-20 md:pb-0 transition-colors">
             {showQadhaTracker && <QadhaTracker onClose={() => setShowQadhaTracker(false)} />}
             
             {/* Mobile Pinned Schedule - sticky top */}
