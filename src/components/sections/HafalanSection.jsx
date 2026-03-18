@@ -54,21 +54,18 @@ export default function HafalanSection() {
     });
 
     const handleTitleClick = useCallback(() => {
-        console.log(`Title click: ${titleClickCount + 1}/5`);
-        setTitleClickCount(prev => {
-            const next = prev + 1;
-            if (next >= 5) {
-                setIsAdminMode(am => {
-                    const newMode = !am;
-                    localStorage.setItem('hafalanAdminMode', newMode.toString());
-                    console.log(`Admin Mode: ${newMode}`);
-                    return newMode;
-                });
-                return 0;
-            }
-            return next;
-        });
-    }, [titleClickCount]);
+        const next = titleClickCount + 1;
+        console.log(`Title click: ${next}/5`);
+        if (next >= 5) {
+            const newMode = !isAdminMode;
+            setIsAdminMode(newMode);
+            localStorage.setItem('hafalanAdminMode', newMode.toString());
+            console.log(`Admin Mode: ${newMode}`);
+            setTitleClickCount(0);
+        } else {
+            setTitleClickCount(next);
+        }
+    }, [titleClickCount, isAdminMode]);
 
     React.useEffect(() => {
         if (typeof window !== 'undefined') {
