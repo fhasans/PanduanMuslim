@@ -42,7 +42,15 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         if (isEditingTiming && ayatList) {
             const initialTimings = {};
             ayatList.forEach(a => {
-                if (a.timestamp !== undefined) initialTimings[a.nomorAyat] = a.timestamp;
+                // If the ayat already has word_timings use them, otherwise use the old single timestamp for the first word
+                if (a.word_timings && a.word_timings.length > 0) {
+                    initialTimings[a.nomorAyat] = [...a.word_timings];
+                } else if (a.timestamp !== undefined) {
+                    // Start with an array containing the verse timestamp
+                    initialTimings[a.nomorAyat] = [a.timestamp];
+                } else {
+                    initialTimings[a.nomorAyat] = [];
+                }
             });
             setTempTimings(initialTimings);
         }
@@ -190,10 +198,15 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
     const handleSaveTimings = async () => {
         setIsSavingTiming(true);
         try {
-            const updatedAyatList = ayatList.map(a => ({
-                ...a,
-                timestamp: tempTimings[a.nomorAyat] !== undefined ? tempTimings[a.nomorAyat] : a.timestamp
-            }));
+            const updatedAyatList = ayatList.map(a => {
+                const timings = tempTimings[a.nomorAyat] || [];
+                return {
+                    ...a,
+                    word_timings: Array.isArray(timings) ? timings : [timings],
+                    // Verse-level timestamp for fallback (first word's time)
+                    timestamp: (Array.isArray(timings) && timings.length > 0) ? timings[0] : (timings || a.timestamp)
+                };
+            });
             
             const { error } = await supabase
                 .from('potongan_surat')
@@ -208,6 +221,31 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
             alert('Gagal menyimpan timing: ' + err.message);
         } finally {
             setIsSavingTiming(false);
+        }
+    };
+
+    // Millisecond accuracy for Karaoke highlighting
+    const [currentTime, setCurrentTime] = useState(0);
+
+    const handleTimeUpdate = (e) => {
+        const time = e.target.currentTime;
+        setCurrentTime(time);
+        
+        if (!ayatList || isEditingTiming) return;
+        
+        // Find which verse is playing
+        let newIndex = -1;
+        for (let i = ayatList.length - 1; i >= 0; i--) {
+            const timings = ayatList[i].word_timings;
+            const startTime = (timings && timings.length > 0) ? timings[0] : ayatList[i].timestamp;
+            if (startTime !== undefined && time >= startTime) {
+                newIndex = i;
+                break;
+            }
+        }
+        
+        if (newIndex !== activeAyatIndex) {
+            setActiveAyatIndex(newIndex);
         }
     };
 
@@ -303,20 +341,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                             className="w-full" 
                             style={{ height: '40px' }} 
                             onEnded={handleAudioEnded}
-                            onTimeUpdate={(e) => {
-                                const ct = e.target.currentTime;
-                                if (!isEditingTiming && ayatList) {
-                                    let activeIdx = -1;
-                                    for (let i = 0; i < ayatList.length; i++) {
-                                        if (ayatList[i].timestamp !== undefined && ayatList[i].timestamp <= ct) {
-                                            activeIdx = i;
-                                        } else if (ayatList[i].timestamp > ct) {
-                                            break;
-                                        }
-                                    }
-                                    if (activeIdx !== activeAyatIndex) setActiveAyatIndex(activeIdx);
-                                }
-                            }}
+                            onTimeUpdate={handleTimeUpdate}
                             onPlay={(e) => {
                                 setIsPlaying(true);
                                 if (isAutoLooping.current) {
@@ -449,11 +474,12 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
 
                                         {isEditingTiming && (
                                             <button 
-                                                onClick={() => setTempTimings(prev => ({...prev, [ayat.nomorAyat]: audioRef.current?.currentTime || 0}))}
-                                                className="flex items-center gap-1.5 bg-indigo-100 dark:bg-indigo-900 hover:bg-indigo-600 dark:hover:bg-indigo-500 text-indigo-700 dark:text-indigo-200 hover:text-white transition-colors px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm"
+                                                onClick={() => setTempTimings(prev => ({...prev, [ayat.nomorAyat]: []}))}
+                                                className="flex items-center gap-1.5 bg-red-50 hover:bg-red-600 text-red-600 hover:text-white transition-colors px-2 py-1 rounded-lg text-[9px] font-bold shadow-sm"
+                                                title="Reset timing semua kata di ayat ini"
                                             >
-                                                <Clock size={12} />
-                                                <span>Set ({formatTime(tempTimings[ayat.nomorAyat] !== undefined ? tempTimings[ayat.nomorAyat] : ayat.timestamp)})</span>
+                                                <RefreshCw size={11} />
+                                                <span>Reset Kata</span>
                                             </button>
                                         )}
                                     </div>
@@ -478,11 +504,37 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                                     <div className={`px-5 pb-4 space-y-3 border-t pt-4 transition-colors ${isActive ? 'border-indigo-100 dark:border-indigo-950 bg-indigo-50/20 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-700'}`}>
                                         {ayat.teksLatin && (
                                             <div className="relative">
-                                                <p className={`text-sm italic leading-relaxed font-medium transition-all duration-500 ${isActive ? 'text-indigo-700 dark:text-indigo-300 font-bold' : 'text-indigo-600 dark:text-indigo-500'}`}>
-                                                    <span className={`px-1.5 py-0.5 rounded-lg transition-all duration-500 ${isActive ? 'bg-yellow-100/60 dark:bg-yellow-500/20 ring-2 ring-yellow-100/60 dark:ring-yellow-500/20 shadow-sm' : ''}`}>
-                                                        {ayat.teksLatin}
-                                                        {' '}
-                                                        <span className={`not-italic font-bold text-xs ${isActive ? 'text-indigo-500' : 'text-indigo-400'}`}>
+                                                <p className={`text-sm italic leading-relaxed font-medium transition-all duration-500 ${isActive ? 'text-indigo-700 dark:text-indigo-100' : 'text-indigo-600 dark:text-indigo-500'}`}>
+                                                    <span className="flex flex-wrap gap-x-1.5 gap-y-1">
+                                                        {ayat.teksLatin.split(' ').map((word, wordIdx) => {
+                                                            const timings = (isEditingTiming ? tempTimings[ayat.nomorAyat] : ayat.word_timings) || [];
+                                                            const startTime = timings[wordIdx];
+                                                            const nextTime = timings[wordIdx + 1];
+                                                            
+                                                            const isWordActive = !isEditingTiming && isActive && startTime !== undefined && currentTime >= startTime && (nextTime === undefined || currentTime < nextTime);
+                                                            
+                                                            return (
+                                                                <span 
+                                                                    key={wordIdx}
+                                                                    onClick={() => {
+                                                                        if (isEditingTiming && audioRef.current) {
+                                                                            const newTimings = [...(tempTimings[ayat.nomorAyat] || [])];
+                                                                            newTimings[wordIdx] = audioRef.current.currentTime;
+                                                                            setTempTimings(prev => ({ ...prev, [ayat.nomorAyat]: newTimings }));
+                                                                        }
+                                                                    }}
+                                                                    className={`px-1 rounded-md transition-all duration-200 ${isWordActive ? 'bg-yellow-200 dark:bg-yellow-500/40 text-indigo-900 dark:text-white font-bold ring-2 ring-yellow-200 dark:ring-yellow-500/40 shadow-sm' : ''} ${isEditingTiming ? 'cursor-pointer hover:bg-indigo-100 dark:hover:bg-indigo-900 border border-dashed border-indigo-300 dark:border-indigo-700' : ''}`}
+                                                                >
+                                                                    {word}
+                                                                    {isEditingTiming && startTime !== undefined && (
+                                                                        <span className="block text-[8px] font-bold text-indigo-500 mt-0.5">
+                                                                            {startTime.toFixed(2)}s
+                                                                        </span>
+                                                                    )}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                        <span className={`not-italic font-bold text-xs ml-1 ${isActive ? 'text-indigo-500' : 'text-indigo-400'}`}>
                                                             ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
                                                         </span>
                                                     </span>
