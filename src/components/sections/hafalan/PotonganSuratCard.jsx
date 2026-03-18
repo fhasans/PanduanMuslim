@@ -236,10 +236,19 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         
         // Find which verse is playing
         let newIndex = -1;
+        // Find the last verse that has a valid timestamp <= currentTime
         for (let i = ayatList.length - 1; i >= 0; i--) {
             const timings = ayatList[i].word_timings;
-            const startTime = (timings && timings.length > 0) ? timings[0] : ayatList[i].timestamp;
-            if (startTime !== undefined && time >= startTime) {
+            let startTime = (timings && timings.length > 0) ? timings[0] : ayatList[i].timestamp;
+            
+            // Convert to number and check if valid
+            startTime = Number(startTime);
+            
+            // If startTime is 0, only accept it for the FIRST ayat (index 0)
+            // This prevents jumping to uninitialized later verses that might have 0
+            if (i > 0 && startTime <= 0) continue;
+            
+            if (!isNaN(startTime) && time >= startTime) {
                 newIndex = i;
                 break;
             }
