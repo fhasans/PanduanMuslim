@@ -262,6 +262,7 @@ export default function HafalanSection() {
                                     isAdminMode={isAdminMode}
                                     onDelete={handleDelete}
                                     onUpgrade={handleUpgrade}
+                                    onUpdateItem={(updatedItem) => setPotonganList(prev => prev.map(p => p.id === updatedItem.id ? updatedItem : p))}
                                 />
                             ))
                         ) : (

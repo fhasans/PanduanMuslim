@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, ChevronUp, Trash2, Play, Pause, Music, RefreshCw, Loader2, Repeat } from 'lucide-react';
+import { ChevronDown, ChevronUp, Trash2, Play, Pause, Music, RefreshCw, Loader2, Repeat, Clock, Save } from 'lucide-react';
+import { supabase } from '../../../lib/supabase.js';
 
 const API_BASE = 'https://equran.id/api/v2';
 
@@ -8,10 +9,24 @@ const toArabicNumerals = (num) => {
     return num.toString().split('').map(n => arabicNumbers[n]).join('');
 };
 
-export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, onUpgrade }) {
+const formatTime = (secs) => {
+    if (secs === undefined || secs === null || isNaN(secs)) return '--:--';
+    const m = Math.floor(secs / 60);
+    const s = Math.floor(secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+};
+
+export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, onUpgrade, onUpdateItem }) {
     const [isOpen, setIsOpen] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isUpgrading, setIsUpgrading] = useState(false);
+
+    // Audio Sync & Admin states
+    const [isEditingTiming, setIsEditingTiming] = useState(false);
+    const [tempTimings, setTempTimings] = useState({});
+    const [activeAyatIndex, setActiveAyatIndex] = useState(-1);
+    const [isSavingTiming, setIsSavingTiming] = useState(false);
+
     const audioRef = useRef(null);
     const targetTimeRef = useRef(null);
     const isAutoLooping = useRef(false);
@@ -20,6 +35,17 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
     const [loopTime, setLoopTime] = useState('');
     const [loopRemaining, setLoopRemaining] = useState(0);
     const [timezoneLabel, setTimezoneLabel] = useState('Lokal');
+    const ayatList = item.ayat_list || null;
+
+    useEffect(() => {
+        if (isEditingTiming && ayatList) {
+            const initialTimings = {};
+            ayatList.forEach(a => {
+                if (a.timestamp !== undefined) initialTimings[a.nomorAyat] = a.timestamp;
+            });
+            setTempTimings(initialTimings);
+        }
+    }, [isEditingTiming, ayatList]);
 
     useEffect(() => {
         try {
@@ -147,7 +173,30 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
         }
     };
 
-    const ayatList = item.ayat_list || null;
+    const handleSaveTimings = async () => {
+        setIsSavingTiming(true);
+        try {
+            const updatedAyatList = ayatList.map(a => ({
+                ...a,
+                timestamp: tempTimings[a.nomorAyat] !== undefined ? tempTimings[a.nomorAyat] : a.timestamp
+            }));
+            
+            const { error } = await supabase
+                .from('potongan_surat')
+                .update({ ayat_list: updatedAyatList })
+                .eq('id', item.id);
+            if (error) throw error;
+            
+            if (onUpdateItem) onUpdateItem({ ...item, ayat_list: updatedAyatList });
+            setIsEditingTiming(false);
+        } catch (err) {
+            console.error('Save timing error:', err);
+            alert('Gagal menyimpan timing: ' + err.message);
+        } finally {
+            setIsSavingTiming(false);
+        }
+    };
+
     const isOldFormat = !ayatList;
 
     return (
@@ -198,6 +247,16 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                         </button>
                     )}
 
+                    {isAdminMode && item.audio_url && ayatList && (
+                        <button
+                            onClick={(e) => { e.stopPropagation(); setIsEditingTiming(!isEditingTiming); setIsOpen(true); }}
+                            className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isEditingTiming ? 'bg-indigo-500 text-white' : 'bg-indigo-100 hover:bg-indigo-500 text-indigo-500 hover:text-white'}`}
+                            title="Set Timing Ayat"
+                        >
+                            <Clock size={13} />
+                        </button>
+                    )}
+
                     {isAdminMode && (
                         <button
                             onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
@@ -230,6 +289,20 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                             className="w-full" 
                             style={{ height: '40px' }} 
                             onEnded={handleAudioEnded}
+                            onTimeUpdate={(e) => {
+                                const ct = e.target.currentTime;
+                                if (!isEditingTiming && ayatList) {
+                                    let activeIdx = -1;
+                                    for (let i = 0; i < ayatList.length; i++) {
+                                        if (ayatList[i].timestamp !== undefined && ayatList[i].timestamp <= ct) {
+                                            activeIdx = i;
+                                        } else if (ayatList[i].timestamp > ct) {
+                                            break;
+                                        }
+                                    }
+                                    if (activeIdx !== activeAyatIndex) setActiveAyatIndex(activeIdx);
+                                }
+                            }}
                             onPlay={(e) => {
                                 setIsPlaying(true);
                                 if (isAutoLooping.current) {
@@ -242,6 +315,29 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                             }}
                             onPause={() => setIsPlaying(false)}
                         />
+
+                        {/* Admin Timing Editor Controls */}
+                        {isEditingTiming && (
+                            <div className="flex items-center justify-between mt-1 pt-3 border-t border-emerald-200/50">
+                                <span className="text-xs text-indigo-700 font-semibold flex items-center gap-1.5">
+                                    <Clock size={14} /> Mode Editor Timing
+                                </span>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => setIsEditingTiming(false)}
+                                        className="text-[10px] px-3 py-1.5 font-bold text-slate-500 hover:bg-slate-200 bg-slate-100 rounded-lg transition-colors"
+                                    >Batal</button>
+                                    <button 
+                                        onClick={handleSaveTimings}
+                                        disabled={isSavingTiming}
+                                        className="flex items-center gap-1 text-[10px] px-3 py-1.5 font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-50"
+                                    >
+                                        {isSavingTiming ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                                        Simpan
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Setting Loop */}
                         {isOpen && (
@@ -313,49 +409,63 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                     {/* Format BARU: per-ayat */}
                     {ayatList ? (
                         <div className="space-y-4 p-4">
-                            {ayatList.map((ayat) => (
-                                <div key={ayat.nomorAyat} className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            {ayatList.map((ayat, i) => {
+                                const isActive = i === activeAyatIndex && !isEditingTiming && isPlaying;
+                                return (
+                                <div key={ayat.nomorAyat} className={`bg-white rounded-2xl border ${isActive ? 'border-indigo-300 ring-2 ring-indigo-100 shadow-md transform scale-[1.01]' : 'border-slate-100 shadow-sm'} overflow-hidden transition-all duration-300`}>
                                     {/* Bar nomor ayat */}
-                                    <div className="flex items-center gap-2 px-4 py-2.5 bg-slate-50 border-b border-slate-100">
-                                        <div className="relative w-7 h-7 shrink-0">
-                                            <svg viewBox="0 0 28 28" className="w-full h-full text-indigo-100">
-                                                <polygon points="14,1 27,7.5 27,20.5 14,27 1,20.5 1,7.5" fill="currentColor" stroke="#a5b4fc" strokeWidth="1" />
-                                            </svg>
-                                            <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-indigo-700">
-                                                {ayat.nomorAyat}
-                                            </span>
+                                    <div className={`flex items-center justify-between px-4 py-2.5 border-b ${isActive ? 'bg-indigo-50 border-indigo-100' : 'bg-slate-50 border-slate-100'}`}>
+                                        <div className="flex items-center gap-2">
+                                            <div className="relative w-7 h-7 shrink-0">
+                                                <svg viewBox="0 0 28 28" className="w-full h-full text-indigo-100">
+                                                    <polygon points="14,1 27,7.5 27,20.5 14,27 1,20.5 1,7.5" fill="currentColor" stroke="#a5b4fc" strokeWidth="1" />
+                                                </svg>
+                                                <span className={`absolute inset-0 flex items-center justify-center text-[9px] font-bold ${isActive ? 'text-indigo-800' : 'text-indigo-700'}`}>
+                                                    {ayat.nomorAyat}
+                                                </span>
+                                            </div>
+                                            <span className={`text-xs font-medium transition-colors ${isActive ? 'text-indigo-600' : 'text-slate-400'}`}>Ayat {ayat.nomorAyat}</span>
                                         </div>
-                                        <span className="text-xs text-slate-400 font-medium">Ayat {ayat.nomorAyat}</span>
+
+                                        {isEditingTiming && (
+                                            <button 
+                                                onClick={() => setTempTimings(prev => ({...prev, [ayat.nomorAyat]: audioRef.current?.currentTime || 0}))}
+                                                className="flex items-center gap-1.5 bg-indigo-100 hover:bg-indigo-600 text-indigo-700 hover:text-white transition-colors px-3 py-1 rounded-lg text-[10px] sm:text-xs font-bold shadow-sm"
+                                            >
+                                                <Clock size={12} />
+                                                <span>Set ({formatTime(tempTimings[ayat.nomorAyat] !== undefined ? tempTimings[ayat.nomorAyat] : ayat.timestamp)})</span>
+                                            </button>
+                                        )}
                                     </div>
 
                                     {/* Teks Arab — marker ﴿X﴾ di akhir teks (kiri secara visual RTL) */}
-                                    <div className="px-5 pt-5 pb-3">
+                                    <div className={`px-5 pt-5 pb-3 transition-colors ${isActive ? 'bg-indigo-50/10' : ''}`}>
                                         <p
-                                            className="text-right text-2xl md:text-3xl leading-[2.6] text-slate-800"
+                                            className={`text-right text-2xl md:text-3xl leading-[2.6] ${isActive ? 'text-indigo-900 font-medium' : 'text-slate-800'}`}
                                             style={{ fontFamily: 'serif', direction: 'rtl', unicodeBidi: 'embed' }}
                                         >
                                             {ayat.teksArab}
                                             {' '}
-                                            <span className="text-indigo-400 text-xl font-bold" style={{ fontFamily: 'serif' }}>
+                                            <span className={`${isActive ? 'text-indigo-500' : 'text-indigo-400'} text-xl font-bold`} style={{ fontFamily: 'serif' }}>
                                                 ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
                                             </span>
                                         </p>
                                     </div>
 
                                     {/* Latin & Terjemahan */}
-                                    <div className="px-5 pb-4 space-y-2 border-t border-slate-100 pt-3">
+                                    <div className={`px-5 pb-4 space-y-2 border-t pt-3 transition-colors ${isActive ? 'border-indigo-100 bg-indigo-50/30' : 'border-slate-100'}`}>
                                         {ayat.teksLatin && (
-                                            <p className="text-sm text-indigo-600 italic leading-relaxed font-medium">
+                                            <p className={`text-sm italic leading-relaxed font-medium ${isActive ? 'text-indigo-700 font-bold' : 'text-indigo-600'}`}>
                                                 {ayat.teksLatin}
                                                 {' '}
-                                                <span className="not-italic font-bold text-indigo-400 text-xs">
+                                                <span className={`not-italic font-bold text-xs ${isActive ? 'text-indigo-500' : 'text-indigo-400'}`}>
                                                     ﴿{toArabicNumerals(ayat.nomorAyat)}﴾
                                                 </span>
                                             </p>
                                         )}
                                         {ayat.teksIndonesia && (
-                                            <p className="text-sm text-slate-600 leading-relaxed">
-                                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-slate-500 font-bold text-[10px] mr-1 shrink-0">
+                                            <p className={`text-sm leading-relaxed ${isActive ? 'text-slate-700 font-medium' : 'text-slate-600'}`}>
+                                                <span className={`inline-flex items-center justify-center w-5 h-5 rounded-full font-bold text-[10px] mr-1 shrink-0 ${isActive ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-500'}`}>
                                                     {ayat.nomorAyat}
                                                 </span>
                                                 {ayat.teksIndonesia}
@@ -363,7 +473,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                                         )}
                                     </div>
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     ) : (
                         /* ── Format LAMA: tampilkan dengan pesan upgrade ── */
