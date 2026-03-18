@@ -10,10 +10,11 @@ const toArabicNumerals = (num) => {
 };
 
 const formatTime = (secs) => {
-    if (secs === undefined || secs === null || isNaN(secs)) return '--:--';
+    if (secs === undefined || secs === null || isNaN(secs)) return '--:--.---';
     const m = Math.floor(secs / 60);
-    const s = Math.floor(secs % 60).toString().padStart(2, '0');
-    return `${m}:${s}`;
+    const s = Math.floor(secs % 60);
+    const ms = Math.floor((secs % 1) * 1000);
+    return `${m}:${s.toString().padStart(2, '0')}.${ms.toString().padStart(3, '0')}`;
 };
 
 export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, onUpgrade, onUpdateItem }) {
@@ -528,7 +529,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                                                                     {word}
                                                                     {isEditingTiming && startTime !== undefined && (
                                                                         <span className="block text-[8px] font-bold text-indigo-500 mt-0.5">
-                                                                            {startTime.toFixed(2)}s
+                                                                            {Number(startTime).toFixed(2)}s
                                                                         </span>
                                                                     )}
                                                                 </span>
