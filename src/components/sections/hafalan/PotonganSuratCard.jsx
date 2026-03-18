@@ -196,7 +196,99 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                 </div>
             </div>
 
-            {/* ── Konten expand ── */}
+            {/* Persistent Audio Player and Settings */}
+            {item.audio_url && (
+                <div className={`border-t border-slate-100 bg-emerald-50/50 p-4 ${!isOpen && !isPlaying ? 'hidden' : 'block'}`}>
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                            <Music size={14} className="text-emerald-600" />
+                            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">Audio Tilawah</span>
+                            {item.audio_name && <span className="text-[11px] text-emerald-600/70 font-medium truncate">· {item.audio_name}</span>}
+                        </div>
+                        
+                        <audio 
+                            ref={audioRef}
+                            src={item.audio_url} 
+                            controls 
+                            className="w-full" 
+                            style={{ height: '40px' }} 
+                            onEnded={handleAudioEnded}
+                            onPlay={(e) => {
+                                setIsPlaying(true);
+                                if (loopType === 'count') {
+                                    if (loopRemaining <= 0) {
+                                        setLoopRemaining(loopCount > 0 ? loopCount - 1 : 0);
+                                    }
+                                }
+                            }}
+                            onPause={() => setIsPlaying(false)}
+                        />
+
+                        {/* Setting Loop */}
+                        {isOpen && (
+                            <div className="flex items-center flex-wrap gap-2 mt-1 -mx-1 p-2 bg-white/60 border border-emerald-100/60 rounded-xl">
+                                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
+                                    <Repeat size={14}/>
+                                    <span className="mr-1">Ulangi:</span>
+                                </div>
+                                <div className="relative">
+                                    <select 
+                                        value={loopType} 
+                                        onChange={(e) => {
+                                            setLoopType(e.target.value);
+                                            if (e.target.value === 'count') {
+                                                setLoopRemaining(loopCount > 0 ? loopCount - 1 : 0);
+                                            }
+                                        }}
+                                        className="appearance-none text-xs bg-white border border-emerald-200 rounded-lg pl-2 pr-7 py-1.5 text-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
+                                    >
+                                        <option value="none">Tidak ada</option>
+                                        <option value="count">Berapa kali</option>
+                                        <option value="time">Sampai jam target</option>
+                                    </select>
+                                    <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"/>
+                                </div>
+
+                                {loopType === 'count' && (
+                                    <div className="flex items-center gap-2 border-l border-emerald-200 pl-3 ml-1">
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="999" 
+                                            value={loopCount} 
+                                            onChange={(e) => {
+                                                const v = parseInt(e.target.value) || 1;
+                                                setLoopCount(v);
+                                                setLoopRemaining(v > 0 ? v - 1 : 0);
+                                            }} 
+                                            className="w-14 text-xs bg-white border border-emerald-200 rounded-lg text-center py-1.5 text-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
+                                        />
+                                        <span className="text-[10px] sm:text-xs text-emerald-600 font-medium whitespace-nowrap">
+                                            kali {isPlaying && loopRemaining > 0 ? <span className="text-emerald-500 bg-emerald-100 px-1.5 py-0.5 rounded-md ml-1 font-bold">sisa {loopRemaining}</span> : ''}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {loopType === 'time' && (
+                                    <div className="flex items-center gap-2 border-l border-emerald-200 pl-3 ml-1">
+                                        <input 
+                                            type="time" 
+                                            value={loopTime} 
+                                            onChange={(e) => setLoopTime(e.target.value)} 
+                                            className="text-xs bg-white border border-emerald-200 rounded-lg px-2 py-1.5 text-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
+                                        />
+                                        <span className="text-[10px] text-emerald-500 font-semibold whitespace-nowrap bg-emerald-100/50 px-2 py-1 rounded-md">
+                                            Waktu {timezoneLabel}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ── Konten expand (Verses) ── */}
             {isOpen && (
                 <div className="border-t border-slate-100">
                     {/* Format BARU: per-ayat */}
@@ -284,82 +376,6 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
                             )}
                         </div>
                     )}
-                </div>
-            )}
-
-            {/* Persistent Audio Player and Settings */}
-            {item.audio_url && (
-                <div className={`border-t border-slate-100 bg-emerald-50/50 p-4 ${!isOpen && !isPlaying ? 'hidden' : 'block'}`}>
-                    <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-2">
-                            <Music size={14} className="text-emerald-600" />
-                            <span className="text-xs font-bold text-emerald-700 uppercase tracking-wide">Audio Tilawah</span>
-                            {item.audio_name && <span className="text-[11px] text-emerald-600/70 font-medium truncate">· {item.audio_name}</span>}
-                        </div>
-                        
-                        <audio 
-                            ref={audioRef}
-                            src={item.audio_url} 
-                            controls 
-                            className="w-full" 
-                            style={{ height: '40px' }} 
-                            onEnded={handleAudioEnded}
-                            onPlay={() => setIsPlaying(true)}
-                            onPause={() => setIsPlaying(false)}
-                        />
-
-                        {/* Setting Loop */}
-                        {isOpen && (
-                            <div className="flex items-center flex-wrap gap-2 mt-1 -mx-1 p-2 bg-white/60 border border-emerald-100/60 rounded-xl">
-                                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-800">
-                                    <Repeat size={14}/>
-                                    <span className="mr-1">Ulangi:</span>
-                                </div>
-                                <div className="relative">
-                                    <select 
-                                        value={loopType} 
-                                        onChange={(e) => setLoopType(e.target.value)}
-                                        className="appearance-none text-xs bg-white border border-emerald-200 rounded-lg pl-2 pr-7 py-1.5 text-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
-                                    >
-                                        <option value="none">Tidak ada</option>
-                                        <option value="count">Berapa kali</option>
-                                        <option value="time">Sampai jam target</option>
-                                    </select>
-                                    <ChevronDown size={12} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-emerald-500 pointer-events-none"/>
-                                </div>
-
-                                {loopType === 'count' && (
-                                    <div className="flex items-center gap-2 border-l border-emerald-200 pl-3 ml-1">
-                                        <input 
-                                            type="number" 
-                                            min="1" 
-                                            max="999" 
-                                            value={loopCount} 
-                                            onChange={(e) => setLoopCount(parseInt(e.target.value) || 1)} 
-                                            className="w-14 text-xs bg-white border border-emerald-200 rounded-lg text-center py-1.5 text-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
-                                        />
-                                        <span className="text-[10px] sm:text-xs text-emerald-600 font-medium whitespace-nowrap">
-                                            kali {isPlaying && loopRemaining > 0 ? <span className="text-emerald-500 bg-emerald-100 px-1.5 py-0.5 rounded-md ml-1 font-bold">sisa {loopRemaining}</span> : ''}
-                                        </span>
-                                    </div>
-                                )}
-
-                                {loopType === 'time' && (
-                                    <div className="flex items-center gap-2 border-l border-emerald-200 pl-3 ml-1">
-                                        <input 
-                                            type="time" 
-                                            value={loopTime} 
-                                            onChange={(e) => setLoopTime(e.target.value)} 
-                                            className="text-xs bg-white border border-emerald-200 rounded-lg px-2 py-1.5 text-emerald-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 shadow-sm"
-                                        />
-                                        <span className="text-[10px] text-emerald-500 font-semibold whitespace-nowrap bg-emerald-100/50 px-2 py-1 rounded-md">
-                                            Waktu {timezoneLabel}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
                 </div>
             )}
         </div>
