@@ -12,6 +12,7 @@ export default function PotonganSuratCard({ item, index, isAdminMode, onDelete, 
     const [isOpen, setIsOpen] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isUpgrading, setIsUpgrading] = useState(false);
+    const audioRef = useRef(null);
     const [loopType, setLoopType] = useState('none');
     const [loopCount, setLoopCount] = useState(3);
     const [loopTime, setLoopTime] = useState('');
