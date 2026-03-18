@@ -202,10 +202,10 @@ export default function App() {
                 {isDarkMode ? <Sun size={24} /> : <Moon size={24} />}
             </button>
             <div className="hidden md:block text-center py-4 text-slate-300 text-[10px] select-none">
-                Build: 1.1.2-beta
+                Build: 1.1.3-fix (Latest)
             </div>
             <div className="md:hidden text-center pt-2 pb-24 text-slate-300 text-[10px] select-none">
-                Build: 1.1.2-beta
+                Build: 1.1.3-fix (Latest)
             </div>
         </div>
     );

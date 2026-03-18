@@ -70,6 +70,17 @@ export default function HafalanSection() {
         });
     }, [titleClickCount]);
 
+    React.useEffect(() => {
+        if (typeof window !== 'undefined') {
+            window.enableHafalanAdmin = () => {
+                setIsAdminMode(true);
+                localStorage.setItem('hafalanAdminMode', 'true');
+                console.log('Admin mode enabled via console.');
+                return 'Admin Mode Aktif! Silakan cek tab Potongan Surat.';
+            };
+        }
+    }, []);
+
     // Tambah potongan baru dari form (prepend to list)
     const handleAdd = useCallback((newItem) => {
         setPotonganList(prev => [newItem, ...prev]);
@@ -125,7 +136,7 @@ export default function HafalanSection() {
                 <div className="flex items-center gap-2 md:justify-start justify-center">
                     <div className="relative">
                         <h2
-                            className="text-2xl font-bold text-slate-900 cursor-pointer select-none active:scale-95 transition-all hover:text-indigo-600 px-2 py-1 rounded-lg hover:bg-indigo-50"
+                            className="text-2xl font-bold text-slate-900 dark:text-slate-50 cursor-pointer select-none active:scale-95 transition-all hover:text-indigo-600 dark:hover:text-indigo-400 px-2 py-1 rounded-lg hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
                             onClick={handleTitleClick}
                             title="Klik 5x untuk Mode Admin"
                         >
