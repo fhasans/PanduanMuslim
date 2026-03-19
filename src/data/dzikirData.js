@@ -237,6 +237,59 @@ export const dzikirPerWaktu = {
     }
 };
 
+export const PAKET_DOA_PRIBADI = {
+    judul: "Paket Doa Pribadi",
+    desc: "Lanjutkan dengan MENGANGKAT TANGAN membaca Paket Doa Pribadi. (Penakluk Syahwat, Minta Derajat, Kelancaran Rezeki, Istighfar Orang Tua).",
+    isSequence: true,
+    items: [
+        {
+            judul: "1. Doa Penakluk Syahwat (Proaktif & Reaktif)",
+            latin: "Allahumma inni a'udzubika min syarri sam'ii, wa min syarri basharii, wa min syarri lisaanii, wa min syarri qalbii, wa min syarri maniyyii. Allahumma thahhir qalbii, wa hassin farjii.",
+            arti: "Ya Allah, aku berlindung kepada-Mu dari kejahatan pendengaranku, penglihatanku, lisanku, hatiku, dan keburukan syahwat kemaluanku. Ya Allah, sucikanlah hatiku, dan peliharalah kemaluanku (dari maksiat)."
+        },
+        {
+            judul: "2. Doa Meminta Ilmu, Harta Berlimpah, dan Amal yang Diterima",
+            latin: "Allahumma inni as-aluka 'ilman naafi'an, wa rizqan thayyiban, wa 'amalan mutaqabbalan. Allahumma aktsir maalii wa waladii, wa baarik lii fiimaa a'thaitanii.",
+            arti: "Ya Allah, sesungguhnya aku memohon kepada-Mu ilmu yang bermanfaat, rezeki yang baik (halal dan berlimpah), dan amal yang diterima. Ya Allah, perbanyaklah hartaku dan keturunanku, serta berkahilah apa pun yang Engkau karuniakan kepadaku."
+        },
+        {
+            judul: "3. Doa Kelancaran Urusan dan Menghadapi Jalan Panjang",
+            latin: "Allahumma laa sahla illaa maa ja'altahu sahlaa, wa anta taj'alul hazna idzaa syi'ta sahlaa.",
+            arti: "Ya Allah, tidak ada kemudahan kecuali apa yang Engkau jadikan mudah. Dan Engkau-lah yang menjadikan kesulitan (jalan yang berliku) menjadi mudah jika Engkau kehendaki."
+        },
+        {
+            judul: "4. Doa Keteguhan Iman (Istiqomah)",
+            latin: "Yaa Muqallibal quluub, tsabbit qalbii 'alaa diinik.",
+            arti: "Wahai Dzat yang membolak-balikkan hati, teguhkanlah hatiku di atas agama-Mu."
+        },
+        {
+            judul: "5. Doa Meminta Derajat, Sifat Adil, Tanggung Jawab, & Perlindungan",
+            latin: "Allahummaghfirlii, warhamnii, wahdinii, wa 'aafinii, warzuqnii, warfa'nii. Allahumma inni as-alukal hudaa, wat tuqaa, wal 'afaafa, wal ghinaa.",
+            arti: "Ya Allah ampunilah aku, rahmatilah aku, berikanlah aku petunjuk, lindungilah/sehatkanlah aku, berikanlah aku rezeki, dan angkatlah derajatku. Ya Allah, aku memohon kepada-Mu petunjuk, ketakwaan, sifat menjaga kehormatan (dari zina/maksiat), dan sifat kecukupan/kekayaan (agar bertanggung jawab dan tidak meminta-minta)."
+        },
+        {
+            judul: "6. Doa Ketegaran dan Kesabaran",
+            latin: "Rabbanaa afrigh 'alainaa shabran wa tsabbit aqdaamanaa.",
+            arti: "Ya Tuhan kami, limpahkanlah kesabaran kepada kami, dan teguhkanlah langkah kaki kami."
+        },
+        {
+            judul: "8. Sayyidul Istighfar",
+            latin: "Allahumma anta rabbii laa ilaaha illaa anta, khalaqtanii wa ana 'abduka, wa ana 'alaa 'ahdika wa wa'dika masta-tha'tu, a'uudzu bika min syarri maa shana'tu, abuu-u laka bini'matika 'alayya, wa abuu-u bidzanbii faghfir lii fa-innahuu laa yaghfirudz-dzunuuba illaa anta.",
+            arti: "Ya Allah, Engkau adalah Tuhanku, tidak ada tuhan selain Engkau yang telah menciptakanku. Aku adalah hamba-Mu, dan aku senantiasa dalam ikatan janji-Mu semampuku. Aku berlindung kepada-Mu dari keburukan yang telah aku perbuat. Aku mengakui nikmat-Mu kepadaku, dan aku mengakui dosaku. Maka ampunilah aku, karena sungguh tidak ada yang dapat mengampuni dosa-dosa selain Engkau."
+        },
+        {
+            judul: "9. Doa Khusus Minta Dihindarkan dari Riba/Hutang",
+            latin: "Allahummakfinii bi halaalika 'an haraamika, wa aghninii bi fadhlika 'amman siwaaka.",
+            arti: "Ya Allah, cukupkanlah aku dengan rezeki yang halal dari-Mu sehingga aku terhindar dari yang haram, dan perkayalah aku dengan karunia-Mu sehingga aku tidak bergantung kepada selain-Mu."
+        },
+        {
+            judul: "10. Doa Ampunan untuk 4 Orang Tua",
+            latin: "Rabbighfirlii waliwaalidayya warhamhumaa kamaa rabbayaanii shaghiiraa.",
+            arti: "Ya Tuhanku, ampunilah dosaku dan (dosa) kedua orang tuaku. Sayangilah mereka berdua sebagaimana mereka berdua menyayangiku di waktu kecil. (Niatkan untuk Ayah, Ibu, dan orang tua pasangan)."
+        }
+    ]
+};
+
 // Backward compatibility (for any component that still uses old exports)
 export const dzikirUmum = dzikirPerWaktu.dzuhur.items;
 export const dzikirKhusus = [SHARED.tahlilKhusus, SHARED.perlindunganNeraka];
