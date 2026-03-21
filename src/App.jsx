@@ -43,6 +43,9 @@ export default function App() {
         }
         return false;
     });
+    const [isIOS, setIsIOS] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
+    const [showIOSPrompt, setShowIOSPrompt] = useState(false);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -60,6 +63,15 @@ export default function App() {
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+        // Detect iOS
+        const userAgent = window.navigator.userAgent.toLowerCase();
+        const ios = /iphone|ipad|ipod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        setIsIOS(ios);
+
+        // Detect if already installed (standalone)
+        const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+        setIsStandalone(standalone);
+
         if (isDarkMode) {
             document.documentElement.classList.add('dark');
             localStorage.setItem('theme', 'dark');
@@ -74,6 +86,10 @@ export default function App() {
     }, [isDarkMode]);
 
     const handleInstallClick = async () => {
+        if (isIOS) {
+            setShowIOSPrompt(true);
+            return;
+        }
         if (!deferredPrompt) return;
         // Show the install prompt
         deferredPrompt.prompt();
@@ -136,12 +152,12 @@ export default function App() {
                             >
                                 {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
                             </button>
-                            {deferredPrompt && (
+                            {(deferredPrompt || (isIOS && !isStandalone)) && (
                                 <button 
                                     onClick={handleInstallClick}
                                     className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 px-4 rounded-xl transition-all shadow-sm shadow-emerald-200"
                                 >
-                                    <Download size={14} /> Install App
+                                    <Download size={14} /> {isIOS ? 'Cara Instal' : 'Install App'}
                                 </button>
                             )}
                         </div>
@@ -185,13 +201,48 @@ export default function App() {
             </nav>
 
             {/* Mobile Floating Install Button */}
-            {deferredPrompt && (
+            {(deferredPrompt || (isIOS && !isStandalone)) && (
                 <button
                     onClick={handleInstallClick}
                     className="md:hidden fixed bottom-20 left-4 z-50 flex items-center gap-2 bg-emerald-600 text-white font-bold py-3 px-5 rounded-full shadow-lg active:scale-95 transition-transform animate-bounce"
                 >
-                    <Download size={20} /> Install App
+                    <Download size={20} /> {isIOS ? 'Instal di iPhone' : 'Install App'}
                 </button>
+            )}
+
+            {/* iOS Install Instruction Modal */}
+            {showIOSPrompt && (
+                <div className="fixed inset-0 z-[60] flex items-end justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl animate-in slide-in-from-bottom duration-300">
+                        <div className="flex justify-between items-start mb-4">
+                            <h3 className="text-xl font-bold text-emerald-900 dark:text-emerald-100">Instal di iPhone/iPad</h3>
+                            <button onClick={() => setShowIOSPrompt(false)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl font-bold">&times;</button>
+                        </div>
+                        <p className="text-slate-600 dark:text-slate-300 mb-6 text-sm leading-relaxed">
+                            Safari di iPhone tidak mendukung instalasi otomatis. Untuk menginstal aplikasi ini:
+                        </p>
+                        <ol className="space-y-4 mb-6">
+                            <li className="flex items-start gap-3">
+                                <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 p-2 rounded-lg shrink-0 text-xs font-bold w-7 h-7 flex items-center justify-center">1</div>
+                                <p className="text-sm text-slate-700 dark:text-slate-200">Klik tombol <b>Bagikan (Share)</b> <span className="inline-block px-1 bg-slate-100 dark:bg-slate-700 rounded text-[10px]">↑</span> di navigasi Safari.</p>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 p-2 rounded-lg shrink-0 text-xs font-bold w-7 h-7 flex items-center justify-center">2</div>
+                                <p className="text-sm text-slate-700 dark:text-slate-200">Scroll ke bawah dan pilih <b>"Tambah ke Layar Utama" (Add to Home Screen)</b>.</p>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <div className="bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 p-2 rounded-lg shrink-0 text-xs font-bold w-7 h-7 flex items-center justify-center">3</div>
+                                <p className="text-sm text-slate-700 dark:text-slate-200">Klik <b>Tambah (Add)</b> di pojok kanan atas.</p>
+                            </li>
+                        </ol>
+                        <button 
+                            onClick={() => setShowIOSPrompt(false)}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-colors shadow-lg shadow-emerald-200 dark:shadow-none"
+                        >
+                            Saya Mengerti
+                        </button>
+                    </div>
+                </div>
             )}
 
             {/* Mobile Floating Theme Toggle */}
