@@ -5,10 +5,13 @@ import MenuCard from '../ui/MenuCard.jsx';
 export default function BerandaSection({ setTab, onSecretTap }) {
     return (
         <div className="space-y-6">
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-800 to-emerald-600 text-white shadow-lg p-6 md:p-8">
+            <div 
+                className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-800 to-emerald-600 text-white shadow-lg p-6 md:p-8 cursor-pointer select-none"
+                onClick={onSecretTap}
+            >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
                 <div className="relative z-10">
-                    <div className="flex items-center gap-2 mb-3 cursor-pointer select-none" onClick={onSecretTap}>
+                    <div className="flex items-center gap-2 mb-3">
                         <BookOpen size={24} className="text-amber-300 pointer-events-none" />
                         <span className="font-bold tracking-wider text-sm text-emerald-100 uppercase pointer-events-none">SunnahGuide</span>
                     </div>

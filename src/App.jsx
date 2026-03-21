@@ -100,8 +100,7 @@ export default function App() {
         setDeferredPrompt(null);
     };
 
-    const handleLogoClick = () => {
-        setActiveTab('beranda');
+    const handleSecretTap = () => {
         const now = Date.now();
         if (now - lastTapTime > 600) {
             setSecretTapCount(1);
@@ -125,7 +124,7 @@ export default function App() {
             case 'quran': return <QuranSection />;
             case 'jadwal': return <JadwalSholatSection />;
             case 'doa': return <DoaSection />;
-            default: return <BerandaSection setTab={setActiveTab} onSecretTap={handleLogoClick} />;
+            default: return <BerandaSection setTab={setActiveTab} onSecretTap={handleSecretTap} />;
         }
     };
 
@@ -142,7 +141,7 @@ export default function App() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6">
                     <div className="flex justify-between h-16 items-center">
                         <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2 cursor-pointer select-none" onClick={handleLogoClick}>
+                            <div className="flex items-center space-x-2 cursor-pointer select-none" onClick={() => setActiveTab('beranda')}>
                                 <BookOpen className="h-8 w-8 text-emerald-600" />
                                 <span className="font-bold text-xl text-emerald-900">Sunnah<span className="text-emerald-500">Guide</span></span>
                             </div>

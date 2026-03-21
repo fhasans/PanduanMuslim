@@ -8,6 +8,7 @@ export default function QadhaCalculator({ onSave, onCancel }) {
     const [dob, setDob] = useState(''); // Date of Birth YYYY-MM-DD
     const [pubertyAge, setPubertyAge] = useState('');
     const [yearlyLogs, setYearlyLogs] = useState([]);
+    const [pin, setPin] = useState('');
     const [error, setError] = useState('');
     const [isCalculating, setIsCalculating] = useState(false);
 
@@ -24,6 +25,11 @@ export default function QadhaCalculator({ onSave, onCancel }) {
         const puberty = parseInt(pubertyAge);
         if (isNaN(puberty) || puberty < 5) {
             setError('Umur akil baligh tidak valid');
+            return;
+        }
+
+        if (!/^\d{6}$/.test(pin)) {
+            setError('PIN harus berupa 6 digit angka');
             return;
         }
 
@@ -97,6 +103,7 @@ export default function QadhaCalculator({ onSave, onCancel }) {
             pubertyAge: parseInt(pubertyAge),
             totalQadha,
             yearlyLogs,
+            pin,
             createdAt: new Date().toISOString()
         };
         onSave(profile);
@@ -162,6 +169,20 @@ export default function QadhaCalculator({ onSave, onCancel }) {
                                 />
                                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Standar umumnya 15 tahun.</p>
                             </div>
+                        </div>
+
+                        <div className="space-y-1.5">
+                            <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Set PIN (6 Digit)</label>
+                            <input 
+                                type="password"
+                                inputMode="numeric"
+                                maxLength={6}
+                                value={pin}
+                                onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                                className="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-mono text-center text-xl tracking-[0.5em]"
+                                placeholder="******"
+                            />
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 italic">PIN diperlukan untuk menghapus profil di kemudian hari.</p>
                         </div>
 
                         <div className="pt-2 flex gap-3">
