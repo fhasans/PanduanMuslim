@@ -62,6 +62,10 @@ export function getRamadansInRange(startDateStr, endDateStr) {
     return ramadans;
 }
 
+// Hijri Adjustment Offset (in days)
+// Set to -1 to align with Indonesian/Rukyat predictions (e.g. 1 Shawwal 1447 = 21 March 2026)
+const HIJRI_OFFSET = -1;
+
 export function getTodayHijri() {
     const formatter = new Intl.DateTimeFormat('id-ID-u-ca-islamic', {
         day: 'numeric',
@@ -69,10 +73,13 @@ export function getTodayHijri() {
         year: 'numeric'
     });
 
-    const formatted = formatter.format(new Date());
+    // Apply offset to current date
+    const adjustedDate = new Date();
+    adjustedDate.setDate(adjustedDate.getDate() + HIJRI_OFFSET);
+
+    const formatted = formatter.format(adjustedDate);
     const matches = formatted.match(/\d+/g);
     if (!matches || matches.length < 3) {
-        // Fallback or error log
         return { day: 1, month: 1, year: 1447 };
     }
     return {
@@ -132,7 +139,12 @@ export function getSunnahRecommendations(hijriDate, gregorianDate = new Date()) 
         for (let i = -60; i < 60; i++) {
             let testDate = new Date(d);
             testDate.setDate(d.getDate() + i);
-            const formatted = formatter.format(testDate);
+            
+            // Calculate Hijri for this testDate WITH offset
+            const hAdjusted = new Date(testDate);
+            hAdjusted.setDate(hAdjusted.getDate() + HIJRI_OFFSET);
+            
+            const formatted = formatter.format(hAdjusted);
             const matches = formatted.match(/\d+/g);
             
             if (!matches || matches.length < 3) continue;
@@ -188,12 +200,12 @@ export function getSunnahRecommendations(hijriDate, gregorianDate = new Date()) 
     // Shawwal: 6 days
     if (month === 10 && day >= 2 && day <= 30) {
         const d2 = getGregorianDate(2, 10, year);
-        const d7 = getGregorianDate(7, 10, year);
-        const d30 = getGregorianDate(30, 10, year) || getGregorianDate(29, 10, year);
+        const d8 = getGregorianDate(8, 10, year);
+        const dEnd = getGregorianDate(30, 10, year) || getGregorianDate(29, 10, year);
         
         recommendations.push({
             name: "Puasa Sunah 6 Hari Syawal",
-            range: `${d2 && d7 ? `Utama: ${formatShortDate(d2)} - ${formatShortDate(d7)}` : 'Pilih 6 hari'} (Hingga ${d30 ? formatShortDate(d30) : 'akhir bulan'})`
+            range: `${d2 && d8 ? `Utama: ${formatShortDate(d2)} - ${formatShortDate(d8)}` : 'Pilih 6 hari'} (Batas akhir: ${dEnd ? formatShortDate(dEnd) : 'Akhir Syawal'})`
         });
     }
 
