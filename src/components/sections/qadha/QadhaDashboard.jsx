@@ -24,7 +24,6 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
         return date === new Date().toDateString();
     });
     const [timerValue, setTimerValue] = useState('');
-    const [isMaghrib, setIsMaghrib] = useState(false);
     const [showSuccessToast, setShowSuccessToast] = useState(false);
 
     useEffect(() => {
@@ -79,6 +78,18 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
     }, [isFasting, prayerData]);
 
     const handleStartFasting = () => {
+        if (!prayerData?.maghrib) return;
+
+        const now = new Date();
+        const [h, m] = prayerData.maghrib.split(':');
+        const maghribTime = new Date();
+        maghribTime.setHours(parseInt(h), parseInt(m), 0);
+
+        if (now >= maghribTime) {
+            alert("Waktu puasa untuk hari ini sudah lewat (sudah masuk waktu Maghrib).");
+            return;
+        }
+
         setIsFasting(true);
         localStorage.setItem(`qadha_active_${profile.id}`, JSON.stringify({
             date: new Date().toDateString(),
@@ -87,10 +98,20 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
 
     const handleFinishFasting = (isAuto = false) => {
         setIsFasting(false);
-        setIsMaghrib(false);
         localStorage.removeItem(`qadha_active_${profile.id}`);
-        // Record payment
-        handleDecrement(); 
+        
+        // Record completion: reduce debt + add to history
+        const newPayment = {
+            id: Date.now().toString(),
+            date: new Date().toISOString(),
+            amount: 1
+        };
+        const currentPayments = profile.payments || [];
+        onUpdate({ 
+            ...profile, 
+            totalQadha: Math.max(0, profile.totalQadha - 1),
+            payments: [newPayment, ...currentPayments] 
+        });
         
         if (isAuto) {
             setShowSuccessToast(true);
@@ -104,23 +125,16 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
             localStorage.removeItem(`qadha_active_${profile.id}`);
         }
     };
-    const handleDecrement = () => {
+    const handleManualDecrement = () => {
         if (profile.totalQadha > 0) {
-            const newPayment = {
-                id: Date.now().toString(),
-                date: new Date().toISOString(),
-                amount: 1
-            };
-            const currentPayments = profile.payments || [];
             onUpdate({ 
                 ...profile, 
-                totalQadha: profile.totalQadha - 1,
-                payments: [newPayment, ...currentPayments] 
+                totalQadha: profile.totalQadha - 1
             });
         }
     };
     
-    const handleIncrement = () => {
+    const handleManualIncrement = () => {
         onUpdate({ ...profile, totalQadha: profile.totalQadha + 1 });
     };
 
@@ -356,22 +370,13 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
                                             <p className="text-5xl font-black tracking-tighter tabular-nums font-mono text-emerald-400">{timerValue || '--:--:--'}</p>
                                         </div>
 
-                                        <div className="flex gap-3 pt-2">
-                                            {isMaghrib ? (
-                                                <button 
-                                                    onClick={handleFinishFasting}
-                                                    className="flex-1 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black rounded-2xl flex items-center justify-center gap-2 animate-bounce shadow-lg shadow-emerald-500/20"
-                                                >
-                                                    <CheckCircle2 size={24} /> Selesaikan Puasa
-                                                </button>
-                                            ) : (
-                                                <button 
-                                                    onClick={handleCancelFasting}
-                                                    className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2 text-xs"
-                                                >
-                                                    <StopCircle size={18} /> Batalkan
-                                                </button>
-                                            )}
+                                         <div className="flex gap-3 pt-2">
+                                            <button 
+                                                onClick={handleCancelFasting}
+                                                className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-2xl flex items-center justify-center gap-2 text-xs"
+                                            >
+                                                <StopCircle size={18} /> Batalkan
+                                            </button>
                                         </div>
                                         
                                         <div className="flex items-center justify-center gap-4 text-[10px] text-slate-500 font-medium">
@@ -433,14 +438,14 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
                         <h3 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mb-6 text-center">Update Manual</h3>
                         <div className="flex items-center justify-center gap-4">
                             <button 
-                                onClick={handleIncrement}
+                                onClick={handleManualIncrement}
                                 className="w-14 h-14 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:scale-90 shadow-sm"
                                 title="Tambah Hutang"
                             >
                                 <Plus size={24} />
                             </button>
                             <button 
-                                onClick={handleDecrement}
+                                onClick={handleManualDecrement}
                                 disabled={profile.totalQadha === 0}
                                 className="flex-1 h-14 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed text-white font-black rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-lg shadow-emerald-200 dark:shadow-none text-base tracking-wide"
                             >
