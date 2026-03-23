@@ -97,7 +97,15 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
     };
 
     const handleFinishFasting = (isAuto = false) => {
+        // If auto-finish (from timer), verify session is still active in localStorage
+        // to prevent orphaned interval ticks after cancellation
+        if (isAuto) {
+            const saved = localStorage.getItem(`qadha_active_${profile.id}`);
+            if (!saved) return;
+        }
+
         setIsFasting(false);
+        setTimerValue('');
         localStorage.removeItem(`qadha_active_${profile.id}`);
         
         // Record completion: reduce debt + add to history
@@ -122,6 +130,7 @@ export default function QadhaDashboard({ profile, onUpdate, onDelete, onBack }) 
     const handleCancelFasting = () => {
         if(window.confirm("Batalkan sesi puasa hari ini?")) {
             setIsFasting(false);
+            setTimerValue('');
             localStorage.removeItem(`qadha_active_${profile.id}`);
         }
     };

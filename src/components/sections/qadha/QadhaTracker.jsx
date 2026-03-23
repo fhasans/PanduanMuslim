@@ -37,12 +37,13 @@ export default function QadhaTracker({ onClose }) {
                     yearlyLogs: p.yearly_logs, // Map snake_case to camelCase
                     pubertyAge: p.puberty_age,
                     totalQadha: p.total_qadha,
+                    fixedMissedDays: p.fixed_missed_days || 0,
                     currentAge: p.current_age,
                     createdAt: p.created_at,
                     pin: p.pin
                 };
             });
-            
+
             setProfiles(profilesObj);
         } catch (err) {
             console.error("Error fetching profiles:", err);
@@ -64,6 +65,7 @@ export default function QadhaTracker({ onClose }) {
                     current_age: profileData.currentAge,
                     puberty_age: profileData.pubertyAge,
                     total_qadha: profileData.totalQadha,
+                    fixed_missed_days: profileData.fixedMissedDays || 0,
                     yearly_logs: profileData.yearlyLogs,
                     payments: profileData.payments || [],
                     pin: profileData.pin
@@ -85,7 +87,7 @@ export default function QadhaTracker({ onClose }) {
     const handleUpdateProfile = async (updatedProfile) => {
         // Optimistic update
         setProfiles(prev => ({ ...prev, [updatedProfile.id]: updatedProfile }));
-        
+
         try {
             const { error } = await supabase
                 .from('qadha_profiles')
@@ -99,7 +101,7 @@ export default function QadhaTracker({ onClose }) {
         } catch (err) {
             console.error("Error updating profile:", err);
             // Revert on error?
-            fetchProfiles(); 
+            fetchProfiles();
         }
     };
 
@@ -118,7 +120,7 @@ export default function QadhaTracker({ onClose }) {
                 delete updated[profileId];
                 return updated;
             });
-            
+
             if (activeProfileId === profileId) {
                 setActiveProfileId(null);
             }
@@ -157,7 +159,7 @@ export default function QadhaTracker({ onClose }) {
                     </div>
                     <span className="font-bold tracking-wide">Qadha Tracker</span>
                 </div>
-                <button 
+                <button
                     onClick={onClose}
                     className="p-2 hover:bg-slate-800 rounded-full transition-colors active:scale-95"
                 >
@@ -179,7 +181,7 @@ export default function QadhaTracker({ onClose }) {
 
                         <div className="space-y-4">
                             <div className="relative">
-                                <input 
+                                <input
                                     type={showPin ? "text" : "password"}
                                     maxLength={6}
                                     value={pinInput}
@@ -188,7 +190,7 @@ export default function QadhaTracker({ onClose }) {
                                     className="w-full py-4 text-center text-2xl font-black tracking-[1em] bg-slate-50 dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 rounded-2xl focus:border-emerald-500 focus:outline-none transition-all placeholder:tracking-normal placeholder:font-normal placeholder:text-slate-300"
                                     autoFocus
                                 />
-                                <button 
+                                <button
                                     onClick={() => setShowPin(!showPin)}
                                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                                 >
@@ -201,13 +203,13 @@ export default function QadhaTracker({ onClose }) {
                             )}
 
                             <div className="flex gap-3">
-                                <button 
+                                <button
                                     onClick={() => setVerifyingProfile(null)}
                                     className="flex-1 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
                                 >
                                     Batal
                                 </button>
-                                <button 
+                                <button
                                     onClick={handleVerifyPin}
                                     disabled={pinInput.length !== 6}
                                     className="flex-1 py-3 text-sm font-bold bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50"
@@ -222,12 +224,12 @@ export default function QadhaTracker({ onClose }) {
 
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-4 md:p-6 pb-24 relative">
-                <div className={`${activeProfileId ? 'max-w-5xl' : 'max-w-md'} mx-auto h-full space-y-4`}>
+                <div className={`${(activeProfileId || isCreating) ? 'max-w-7xl' : 'max-w-md'} mx-auto h-full space-y-4`}>
                     {/* View Active Profile */}
                     {activeProfileId && profiles[activeProfileId] && !isCreating && (
-                        <QadhaDashboard 
-                            profile={profiles[activeProfileId]} 
-                            onUpdate={handleUpdateProfile} 
+                        <QadhaDashboard
+                            profile={profiles[activeProfileId]}
+                            onUpdate={handleUpdateProfile}
                             onDelete={handleDeleteProfile}
                             onBack={() => setActiveProfileId(null)}
                         />
@@ -235,14 +237,14 @@ export default function QadhaTracker({ onClose }) {
 
                     {/* Create Profile Form */}
                     {isCreating && (
-                        <QadhaCalculator 
-                            onSave={handleSaveProfile} 
+                        <QadhaCalculator
+                            onSave={handleSaveProfile}
                             onCancel={() => {
                                 setIsCreating(false);
                                 if (profileList.length === 0) {
-                                  onClose();
+                                    onClose();
                                 }
-                            }} 
+                            }}
                         />
                     )}
 
@@ -253,10 +255,66 @@ export default function QadhaTracker({ onClose }) {
                                 <div className="mx-auto w-16 h-16 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-slate-400 dark:text-slate-500">
                                     <Users size={32} />
                                 </div>
-                                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-2">Pilih Profil</h2>
-                                <p className="text-sm text-slate-500 dark:text-slate-400 max-w-xs mx-auto">
-                                    Pilih profil pengguna untuk melihat atau memperbarui catatan qadha puasa.
+                                <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 mb-1">Pilih Profil</h2>
+                                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold uppercase tracking-wider mb-2">
+                                    Qadha Tracker
                                 </p>
+                                <p className="text-sm text-slate-600 dark:text-slate-300 max-w-xs mx-auto mb-4 leading-relaxed italic">
+                                    "Untuk mengganti puasa lampau yang sengaja atau tidak sengaja ditinggalkan."
+                                </p>
+
+                                <div className="bg-slate-100 dark:bg-slate-800/50 rounded-[2rem] p-6 text-left border border-slate-200 dark:border-slate-700/50 space-y-5 shadow-inner">
+                                    <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-700 pb-4 mb-1">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
+                                        <h4 className="text-xs font-black text-slate-800 dark:text-slate-100 uppercase tracking-[0.1em]">
+                                            Tujuan & Ketentuan Hukum
+                                        </h4>
+                                    </div>
+                                    
+                                    <div className="space-y-4">
+                                        {/* Tidak Sengaja */}
+                                        <div className="p-4 bg-white dark:bg-slate-900/60 rounded-2xl border-l-4 border-emerald-500 shadow-sm group hover:shadow-md transition-shadow">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <p className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tight">1. Udhur (Tidak Sengaja)</p>
+                                                <div className="relative group/tooltip">
+                                                    <span className="text-[9px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-full cursor-help hover:bg-emerald-50 dark:hover:bg-emerald-900/40 transition-colors">Al-Baqarah: 184</span>
+                                                    <div className="absolute right-0 bottom-full mb-2 w-56 p-3 bg-slate-900 dark:bg-slate-950 text-white text-[10px] rounded-xl shadow-2xl opacity-0 scale-95 group-hover/tooltip:opacity-100 group-hover/tooltip:scale-100 pointer-events-none transition-all duration-200 z-[100] leading-relaxed border border-slate-700 font-medium">
+                                                        "Maka barangsiapa di antara kamu ada yang sakit atau dalam perjalanan, maka (wajiblah baginya berpuasa) sebanyak hari yang ditinggalkan itu pada hari-hari yang lain."
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                                                Disebabkan Sakit, Musafir, Hamil, Menyusui, atau <b>Haid & Nifas</b> (wanita). Allah memberikan rukhshah (keringanan) tapi <b>Wajib menggantinya</b> di hari lain.
+                                            </p>
+                                        </div>
+
+                                        {/* Sengaja */}
+                                        <div className="p-4 bg-white dark:bg-slate-900/60 rounded-2xl border-l-4 border-red-500 shadow-sm group hover:shadow-md transition-shadow">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <p className="text-[11px] font-black text-red-600 uppercase tracking-tight">2. Lalai (Sengaja)</p>
+                                                <div className="relative group/tooltip">
+                                                    <span className="text-[9px] font-bold text-slate-400 bg-slate-50 dark:bg-slate-800 px-2 py-0.5 rounded-full cursor-help hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">HR. Bukhari & Muslim</span>
+                                                    <div className="absolute right-0 bottom-full mb-2 w-56 p-3 bg-slate-900 dark:bg-slate-950 text-white text-[10px] rounded-xl shadow-2xl opacity-0 scale-95 group-hover/tooltip:opacity-100 group-hover/tooltip:scale-100 pointer-events-none transition-all duration-200 z-[100] leading-relaxed border border-slate-700 font-medium">
+                                                        "Maka hutang kepada Allah lebih berhak (wajib) untuk dilunasi." (Hadits ini merujuk pada kewajiban melunasi setiap hutang ibadah yang ditinggalkan).
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                                                Meninggalkan puasa tanpa udzur syar'i adalah <b>Dosa Besar</b>. Tetap <b>Wajib Qadha</b> dan wajib segera bertaubat nasuha kepada Allah SWT.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-xl border border-amber-100 dark:border-amber-800/30 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-1 opacity-10">
+                                            <Users size={40} />
+                                        </div>
+                                        <p className="text-[10px] text-amber-800 dark:text-amber-200/80 italic leading-relaxed relative z-10">
+                                            "Maka hutang kepada Allah lebih berhak (wajib) untuk dilunasi." 
+                                            <span className="block mt-1 font-bold not-italic">— HR. Bukhari no. 1953</span>
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
                             {loading && profileList.length === 0 ? (
@@ -267,23 +325,20 @@ export default function QadhaTracker({ onClose }) {
                             ) : (
                                 <div className="space-y-3">
                                     {profileList.map(profile => (
-                                        <button 
+                                        <button
                                             key={profile.id}
                                             onClick={() => handleProfileSelect(profile)}
                                             className="w-full flex items-center p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:border-emerald-200 dark:hover:border-emerald-500/50 hover:shadow-emerald-100 dark:hover:shadow-emerald-900/20 transition-all text-left group"
                                         >
                                             <div className="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl mr-4 group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors">
-                                               <UserCircle2 size={24} className="text-emerald-600 dark:text-emerald-400" />
+                                                <UserCircle2 size={24} className="text-emerald-600 dark:text-emerald-400" />
                                             </div>
                                             <div className="flex-1">
                                                 <h3 className="font-bold text-slate-800 dark:text-slate-200">{profile.name}</h3>
-                                                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                                                    Sisa: {profile.totalQadha} Hari
-                                                </p>
                                             </div>
                                         </button>
                                     ))}
-                                    
+
                                     {profileList.length === 0 && !loading && (
                                         <div className="text-center py-4">
                                             <p className="text-slate-500 dark:text-slate-400 text-sm">Belum ada profil qadha.</p>
@@ -292,7 +347,7 @@ export default function QadhaTracker({ onClose }) {
                                 </div>
                             )}
 
-                            <button 
+                            <button
                                 onClick={() => setIsCreating(true)}
                                 disabled={loading}
                                 className="w-full py-4 px-4 bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 border border-emerald-200 dark:border-emerald-800 border-dashed text-emerald-700 dark:text-emerald-400 font-semibold rounded-2xl flex items-center justify-center gap-2 transition-colors mt-6 disabled:opacity-50"

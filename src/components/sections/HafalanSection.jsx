@@ -20,6 +20,8 @@ export default function HafalanSection() {
         if (typeof window !== 'undefined') {
             localStorage.setItem('hafalanActiveTab', activeTab);
         }
+        // Matikan Admin Mode setiap pindah tab internal
+        setIsAdminMode(false);
     }, [activeTab]);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState('all');
@@ -46,12 +48,7 @@ export default function HafalanSection() {
 
     // Admin mode: klik "Hafalan & Bacaan" 5x (Persist di localStorage)
     const [titleClickCount, setTitleClickCount] = useState(0);
-    const [isAdminMode, setIsAdminMode] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return localStorage.getItem('hafalanAdminMode') === 'true';
-        }
-        return false;
-    });
+    const [isAdminMode, setIsAdminMode] = useState(false);
 
     const handleTitleClick = useCallback(() => {
         const next = titleClickCount + 1;
@@ -59,7 +56,6 @@ export default function HafalanSection() {
         if (next >= 5) {
             const newMode = !isAdminMode;
             setIsAdminMode(newMode);
-            localStorage.setItem('hafalanAdminMode', newMode.toString());
             console.log(`Admin Mode: ${newMode}`);
             setTitleClickCount(0);
         } else {
@@ -71,7 +67,6 @@ export default function HafalanSection() {
         if (typeof window !== 'undefined') {
             window.enableHafalanAdmin = () => {
                 setIsAdminMode(true);
-                localStorage.setItem('hafalanAdminMode', 'true');
                 console.log('Admin mode enabled via console.');
                 return 'Admin Mode Aktif! Silakan cek tab Potongan Surat.';
             };
