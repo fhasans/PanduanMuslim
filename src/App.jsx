@@ -32,6 +32,7 @@ import RandomAyat from './components/layout/RandomAyat.jsx';
 import QadhaTracker from './components/sections/qadha/QadhaTracker.jsx';
 import QadhaSholatTracker from './components/sections/qadha_sholat/QadhaSholatTracker.jsx';
 import GlobalLocationPrompt from './components/layout/GlobalLocationPrompt.jsx';
+import SholatReminderCard from './components/sections/qadha_sholat/SholatReminderCard.jsx';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState(() => {
@@ -322,6 +323,11 @@ export default function App() {
 
                 {/* Content Container */}
                 <main className="flex-1 w-full max-w-5xl mx-auto px-4 md:px-8 py-6 pb-24 md:pb-8">
+                    {activeTab !== 'qadha' && activeTab !== 'qadha_sholat' && (
+                        <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-500">
+                            <SholatReminderCard setTab={setActiveTab} />
+                        </div>
+                    )}
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-700">
                         {renderContent()}
                     </div>

@@ -14,6 +14,11 @@ export default function QadhaSholatTracker({ onClose }) {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    
+    // Users List State
+    const [registeredUsers, setRegisteredUsers] = useState([]);
+    const [loadingUsers, setLoadingUsers] = useState(false);
+    const [selectedUsername, setSelectedUsername] = useState(null);
 
     // Registration Location State
     const [provinsi, setProvinsi] = useState([]);
@@ -37,7 +42,28 @@ export default function QadhaSholatTracker({ onClose }) {
         if (isRegistering) {
             fetchProvinsi();
         }
-    }, [isRegistering]);
+        if (!activeUser && !isRegistering && !selectedUsername) {
+            fetchUsers();
+        }
+    }, [isRegistering, activeUser, selectedUsername]);
+
+    const fetchUsers = async () => {
+        setLoadingUsers(true);
+        try {
+            const { data, error } = await supabase
+                .from('qadha_sholat_users')
+                .select('id, username, last_active_at')
+                .order('last_active_at', { ascending: false });
+            
+            if (!error && data) {
+                setRegisteredUsers(data);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingUsers(false);
+        }
+    };
 
     useEffect(() => {
         if (selectedProvinsi) {
@@ -328,25 +354,22 @@ export default function QadhaSholatTracker({ onClose }) {
                             </button>
 
                             <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
-                                Sudah punya akun? <button type="button" onClick={() => {setIsRegistering(false); setError('');}} className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Login disini</button>
+                                Batal daftar? <button type="button" onClick={() => {setIsRegistering(false); setError('');}} className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Kembali</button>
                             </p>
                         </form>
-                    ) : (
+                    ) : selectedUsername ? (
                         <form onSubmit={handleLogin} className="space-y-4">
-                            <div>
-                                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5 uppercase">Username</label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <User size={16} className="text-slate-400" />
-                                    </div>
-                                    <input 
-                                        type="text" 
-                                        value={username}
-                                        onChange={e => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100" 
-                                        placeholder="Ketik username"
-                                    />
+                            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-xl mb-4 border border-slate-200 dark:border-slate-700">
+                                <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/50 rounded-full flex items-center justify-center">
+                                    <User size={20} className="text-indigo-600 dark:text-indigo-400" />
                                 </div>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 font-bold uppercase">Login sebagai</p>
+                                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">@{selectedUsername}</p>
+                                </div>
+                                <button type="button" onClick={() => {setSelectedUsername(null); setError(''); setPassword('');}} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors">
+                                    <X size={16} />
+                                </button>
                             </div>
 
                             <div>
@@ -361,6 +384,7 @@ export default function QadhaSholatTracker({ onClose }) {
                                         onChange={e => setPassword(e.target.value)}
                                         className="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-slate-800 dark:text-slate-100" 
                                         placeholder="Ketik password"
+                                        autoFocus
                                     />
                                 </div>
                             </div>
@@ -373,11 +397,51 @@ export default function QadhaSholatTracker({ onClose }) {
                                 {loading && <Loader2 size={16} className="animate-spin" />}
                                 Masuk
                             </button>
-
-                            <p className="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
-                                Belum punya akun? <button type="button" onClick={() => {setIsRegistering(true); setError('');}} className="font-bold text-indigo-600 dark:text-indigo-400 hover:underline">Buat akun baru</button>
-                            </p>
                         </form>
+                    ) : (
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300 px-1 uppercase tracking-wider">Pilih Akun</h3>
+                            
+                            {loadingUsers ? (
+                                <div className="flex justify-center p-6">
+                                    <Loader2 className="animate-spin text-indigo-500" size={24} />
+                                </div>
+                            ) : registeredUsers.length > 0 ? (
+                                <div className="grid grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1 no-scrollbar">
+                                    {registeredUsers.map(u => (
+                                        <button 
+                                            key={u.id}
+                                            onClick={() => {
+                                                setUsername(u.username);
+                                                setSelectedUsername(u.username);
+                                                setError('');
+                                                setPassword('');
+                                            }}
+                                            className="flex flex-col items-center justify-center gap-2 p-4 bg-slate-50 dark:bg-slate-800/50 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 border border-slate-200 dark:border-slate-700 rounded-2xl transition-all active:scale-95 group"
+                                        >
+                                            <div className="w-12 h-12 bg-white dark:bg-slate-900 rounded-full flex items-center justify-center shadow-sm border border-slate-100 dark:border-slate-700 group-hover:scale-110 group-hover:border-indigo-200 dark:group-hover:border-indigo-800 transition-all">
+                                                <User size={24} className="text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                                            </div>
+                                            <span className="text-sm font-bold text-slate-700 dark:text-slate-200 truncate w-full text-center">@{u.username}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center p-6 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700">
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Belum ada akun terdaftar.</p>
+                                </div>
+                            )}
+
+                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                                <button
+                                    onClick={() => {setIsRegistering(true); setError('');}}
+                                    className="w-full py-3 bg-white dark:bg-slate-900 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-bold rounded-xl transition-all active:scale-95 flex justify-center items-center gap-2"
+                                >
+                                    <PlusCircle size={18} />
+                                    Buat Akun Baru
+                                </button>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
