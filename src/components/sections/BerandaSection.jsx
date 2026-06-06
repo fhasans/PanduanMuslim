@@ -1,10 +1,12 @@
 import React from 'react';
 import { BookOpen, Droplets, Heart, Book, Compass, Bookmark } from 'lucide-react';
 import MenuCard from '../ui/MenuCard.jsx';
+import SholatReminderCard from './qadha_sholat/SholatReminderCard.jsx';
 
 export default function BerandaSection({ setTab, onSecretTap }) {
     return (
         <div className="space-y-6">
+            <SholatReminderCard setTab={setTab} />
             <div 
                 className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-emerald-800 to-emerald-600 text-white shadow-lg p-6 md:p-8 cursor-pointer select-none"
                 onClick={onSecretTap}

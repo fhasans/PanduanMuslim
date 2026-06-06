@@ -21,8 +21,8 @@ export default function ImsakiyahSection() {
     const [kabkota, setKabkota] = useState([]);
     const [jadwal, setJadwal] = useState([]);
 
-    const [selectedProvinsi, setSelectedProvinsi] = useState('');
-    const [selectedKabkota, setSelectedKabkota] = useState('');
+    const [selectedProvinsi, setSelectedProvinsi] = useState(() => localStorage.getItem('user_provinsi') || '');
+    const [selectedKabkota, setSelectedKabkota] = useState(() => localStorage.getItem('user_kabkota') || '');
 
     const [loadingProv, setLoadingProv] = useState(true);
     const [loadingKab, setLoadingKab] = useState(false);
@@ -53,9 +53,6 @@ export default function ImsakiyahSection() {
     useEffect(() => {
         if (!selectedProvinsi) { setKabkota([]); setSelectedKabkota(''); setJadwal([]); return; }
         setLoadingKab(true);
-        setKabkota([]);
-        setSelectedKabkota('');
-        setJadwal([]);
         fetch(`${BASE}/kabkota`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -63,8 +60,13 @@ export default function ImsakiyahSection() {
         })
             .then(r => r.json())
             .then(d => {
-                setKabkota(d.data || []);
+                const newData = d.data || [];
+                setKabkota(newData);
                 setLoadingKab(false);
+                // Reset kabkota ONLY if the current selected one is not in the new list
+                if (selectedKabkota && !newData.includes(selectedKabkota)) {
+                    setSelectedKabkota('');
+                }
             })
             .catch(() => {
                 setError('Gagal memuat daftar kota.');

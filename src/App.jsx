@@ -14,7 +14,8 @@ import {
     RefreshCw,
     ChevronLeft,
     ChevronRight,
-    X as CloseIcon
+    X as CloseIcon,
+    Clock
 } from 'lucide-react';
 import { DesktopNavButton, MobileNavButton } from './components/layout/NavButtons.jsx';
 import FeatureHighlightPopup from './components/layout/FeatureHighlightPopup.jsx';
@@ -29,6 +30,8 @@ import DoaSection from './components/sections/DoaSection.jsx';
 import PinnedSchedule from './components/layout/PinnedSchedule.jsx';
 import RandomAyat from './components/layout/RandomAyat.jsx';
 import QadhaTracker from './components/sections/qadha/QadhaTracker.jsx';
+import QadhaSholatTracker from './components/sections/qadha_sholat/QadhaSholatTracker.jsx';
+import GlobalLocationPrompt from './components/layout/GlobalLocationPrompt.jsx';
 
 export default function App() {
     const [activeTab, setActiveTab] = useState(() => {
@@ -37,6 +40,14 @@ export default function App() {
         }
         return 'beranda';
     });
+
+    const [isLocationSet, setIsLocationSet] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return !!(localStorage.getItem('user_provinsi') && localStorage.getItem('user_kabkota'));
+        }
+        return false;
+    });
+
     const [deferredPrompt, setDeferredPrompt] = useState(null);
     const [isDarkMode, setIsDarkMode] = useState(() => {
         if (typeof window !== 'undefined') {
@@ -138,6 +149,7 @@ export default function App() {
         { id: 'jadwal', label: 'Jadwal', icon: <Compass size={20} /> },
         { id: 'doa', label: 'Doa', icon: <Bookmark size={20} /> },
         { id: 'qadha', label: 'Qadha Puasa', icon: <Lock size={20} /> },
+        { id: 'qadha_sholat', label: 'Qadha Sholat', icon: <Clock size={20} /> },
     ];
 
     const renderContent = () => {
@@ -150,12 +162,14 @@ export default function App() {
             case 'jadwal': return <JadwalSholatSection />;
             case 'doa': return <DoaSection />;
             case 'qadha': return <QadhaTracker onClose={() => setActiveTab('beranda')} />;
+            case 'qadha_sholat': return <QadhaSholatTracker onClose={() => setActiveTab('beranda')} />;
             default: return <BerandaSection setTab={setActiveTab} />;
         }
     };
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-800 dark:text-slate-100 transition-colors flex flex-col md:flex-row relative">
+            {!isLocationSet && <GlobalLocationPrompt onComplete={() => setIsLocationSet(true)} />}
             
             {/* Update Available Banner (Always Top) */}
             {showUpdateBanner && (

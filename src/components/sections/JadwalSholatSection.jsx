@@ -30,10 +30,12 @@ export default function JadwalSholatSection() {
     const [kabkota, setKabkota] = useState([]);
     const [jadwal, setJadwal] = useState([]);
 
-    const [selectedProvinsi, setSelectedProvinsi] = useState('');
-    const [selectedKabkota, setSelectedKabkota] = useState('');
-    const [selectedBulan, setSelectedBulan] = useState(currentMonth);
-    const [selectedTahun, setSelectedTahun] = useState(currentYear);
+    const [selectedProvinsi, setSelectedProvinsi] = useState(() => {
+        return localStorage.getItem('user_provinsi') || '';
+    });
+    const [selectedKabkota, setSelectedKabkota] = useState(() => {
+        return localStorage.getItem('user_kabkota') || '';
+    });
 
     const [loadingProv, setLoadingProv] = useState(true);
     const [loadingKab, setLoadingKab] = useState(false);
@@ -58,9 +60,6 @@ export default function JadwalSholatSection() {
     useEffect(() => {
         if (!selectedProvinsi) { setKabkota([]); setSelectedKabkota(''); setJadwal([]); return; }
         setLoadingKab(true);
-        setKabkota([]);
-        setSelectedKabkota('');
-        setJadwal([]);
         fetch(`${BASE}/kabkota`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -68,8 +67,13 @@ export default function JadwalSholatSection() {
         })
             .then(r => r.json())
             .then(d => {
-                setKabkota(d.data || []);
+                const newData = d.data || [];
+                setKabkota(newData);
                 setLoadingKab(false);
+                // Reset kabkota ONLY if the current selected one is not in the new list
+                if (selectedKabkota && !newData.includes(selectedKabkota)) {
+                    setSelectedKabkota('');
+                }
             })
             .catch(() => {
                 setError('Gagal memuat daftar kota.');
@@ -89,8 +93,8 @@ export default function JadwalSholatSection() {
             body: JSON.stringify({ 
                 provinsi: selectedProvinsi, 
                 kabkota: selectedKabkota, 
-                bulan: parseInt(selectedBulan), 
-                tahun: parseInt(selectedTahun) 
+                bulan: currentMonth, 
+                tahun: currentYear 
             }),
         })
             .then(r => r.json())
@@ -102,9 +106,9 @@ export default function JadwalSholatSection() {
                 setError('Gagal memuat jadwal shalat.');
                 setLoadingJadwal(false);
             });
-    }, [selectedKabkota, selectedBulan, selectedTahun]);
+    }, [selectedKabkota]);
 
-    const isCurrentViewToday = parseInt(selectedBulan) === currentMonth && parseInt(selectedTahun) === currentYear;
+    const isCurrentViewToday = true;
 
     // Find today's entry
     const todayEntry = isCurrentViewToday ? jadwal.find(j => {
@@ -162,34 +166,6 @@ export default function JadwalSholatSection() {
                         </div>
                     </div>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="relative">
-                        <select
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 appearance-none text-slate-700 font-medium"
-                            value={selectedBulan}
-                            onChange={e => setSelectedBulan(e.target.value)}
-                        >
-                            {BULAN.map((b, i) => <option key={b} value={i + 1}>{b}</option>)}
-                        </select>
-                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
-                            <ChevronDown size={15} />
-                        </div>
-                    </div>
-
-                    <div className="relative">
-                        <select
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-4 pr-9 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 appearance-none text-slate-700 font-medium"
-                            value={selectedTahun}
-                            onChange={e => setSelectedTahun(e.target.value)}
-                        >
-                            {[currentYear-1, currentYear, currentYear+1].map(y => <option key={y} value={y}>{y}</option>)}
-                        </select>
-                        <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
-                            <ChevronDown size={15} />
-                        </div>
-                    </div>
-                </div>
             </div>
 
             {error && (
@@ -202,7 +178,7 @@ export default function JadwalSholatSection() {
             {loadingJadwal && (
                 <div className="flex flex-col items-center justify-center py-14 text-slate-400">
                     <Loader2 size={32} className="animate-spin mb-3 text-teal-500" />
-                    <p className="text-sm font-medium">Memuat jadwal {BULAN[selectedBulan-1]}...</p>
+                    <p className="text-sm font-medium">Memuat jadwal {BULAN[currentMonth-1]}...</p>
                 </div>
             )}
 
@@ -213,7 +189,7 @@ export default function JadwalSholatSection() {
                             <Star size={14} className="text-yellow-300 fill-yellow-300" />
                             <span className="text-xs font-bold uppercase tracking-widest text-teal-100">Shalat Hari Ini</span>
                         </div>
-                        <span className="text-xs font-semibold bg-white/20 px-2 py-0.5 rounded text-white">{todayDate} {BULAN[selectedBulan-1]} {selectedTahun}</span>
+                        <span className="text-xs font-semibold bg-white/20 px-2 py-0.5 rounded text-white">{todayDate} {BULAN[currentMonth-1]} {currentYear}</span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {WAKTU_CONFIG.map(w => (
@@ -233,7 +209,7 @@ export default function JadwalSholatSection() {
                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                     <div className="px-4 py-3 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
                         <h4 className="font-bold text-slate-700 text-sm">
-                            {selectedKabkota} — {BULAN[selectedBulan-1]} {selectedTahun}
+                            {selectedKabkota} — {BULAN[currentMonth-1]} {currentYear}
                         </h4>
                     </div>
 
